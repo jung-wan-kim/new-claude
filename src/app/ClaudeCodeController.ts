@@ -1,5 +1,5 @@
 import * as blessed from 'blessed';
-import { MCPManager } from '../mcp/MCPManager';
+import { EnhancedMCPManager } from '../mcp/EnhancedMCPManager';
 import { ClaudeCodeBridge } from '../claude/ClaudeCodeBridge';
 import { UIManager } from '../ui/UIManager';
 import { TaskStore } from '../stores/TaskStore';
@@ -13,7 +13,7 @@ export interface ControllerOptions {
 
 export class ClaudeCodeController {
   private screen!: blessed.Widgets.Screen;
-  private mcpManager: MCPManager;
+  private mcpManager: EnhancedMCPManager;
   private claudeBridge: ClaudeCodeBridge;
   private uiManager!: UIManager;
   private taskStore: TaskStore;
@@ -23,11 +23,28 @@ export class ClaudeCodeController {
 
   constructor(options: ControllerOptions = {}) {
     this.options = options;
-    this.mcpManager = new MCPManager();
+    this.mcpManager = new EnhancedMCPManager();
     this.claudeBridge = new ClaudeCodeBridge();
     this.taskStore = new TaskStore();
     this.contextStore = new ContextStore();
     this.logStore = new LogStore();
+    
+    // MCP 이벤트 리스너 설정
+    this.setupMCPEventListeners();
+  }
+
+  private setupMCPEventListeners() {
+    this.mcpManager.on('initialized', (result) => {
+      this.logStore.info(`MCP initialization complete: ${JSON.stringify(result)}`, 'MCP');
+    });
+
+    this.mcpManager.on('serverDisconnected', (name, error) => {
+      this.logStore.warn(`MCP server ${name} disconnected: ${error.message}`, 'MCP');
+    });
+
+    this.mcpManager.on('serverReconnected', (name) => {
+      this.logStore.info(`MCP server ${name} reconnected`, 'MCP');
+    });
   }
 
   async start() {
