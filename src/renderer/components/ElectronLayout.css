@@ -1,0 +1,338 @@
+/* Electron Layout Styles */
+
+.electron-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  font-family: SF Mono, Monaco, Menlo, monospace;
+  font-size: 14px;
+}
+
+/* Theme Styles */
+.theme-dark {
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+}
+
+.theme-light {
+  background-color: #ffffff;
+  color: #333333;
+}
+
+.theme-high-contrast {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  border-bottom: 1px solid #464647;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 18px;
+  color: #007acc;
+}
+
+.status {
+  font-size: 12px;
+}
+
+/* Main Content */
+.main-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Panels */
+.panel {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #464647;
+  min-width: 200px;
+}
+
+.panel:last-child {
+  border-right: none;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #464647;
+}
+
+.panel-header h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.panel-header button {
+  background: none;
+  border: none;
+  color: #007acc;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.panel-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+/* Active Panel */
+.panel.active .panel-header {
+  background-color: rgba(0, 122, 204, 0.1);
+}
+
+.panel.active .panel-header h2 {
+  color: #007acc;
+}
+
+/* Layout Variations */
+.layout-default .tasks-panel { flex: 0 0 25%; }
+.layout-default .work-panel { flex: 0 0 40%; }
+.layout-default .context-panel { flex: 0 0 20%; }
+.layout-default .logs-panel { flex: 0 0 15%; }
+
+.layout-focus .work-panel { flex: 1; }
+.layout-focus .tasks-panel,
+.layout-focus .context-panel,
+.layout-focus .logs-panel { display: none; }
+
+.layout-compact .tasks-panel { flex: 0 0 30%; }
+.layout-compact .work-panel { flex: 0 0 70%; }
+.layout-compact .context-panel,
+.layout-compact .logs-panel { display: none; }
+
+/* Task Items */
+.task-item {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+.task-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.task-item.selected {
+  background-color: rgba(0, 122, 204, 0.2);
+}
+
+.task-item .status-icon {
+  margin-right: 8px;
+}
+
+.task-item .task-title {
+  flex: 1;
+}
+
+.task-item.completed .task-title {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.task-item .priority {
+  margin-left: 8px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.priority.high { color: #f5222d; }
+.priority.medium { color: #faad14; }
+.priority.low { color: #808080; }
+
+/* Context Items */
+.context-item {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+.context-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.context-item.active {
+  background-color: rgba(0, 122, 204, 0.2);
+}
+
+.context-item .type-icon {
+  margin-right: 8px;
+}
+
+.context-item .context-title {
+  flex: 1;
+}
+
+/* Log Entries */
+.log-entry {
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+.log-entry .timestamp {
+  margin-right: 8px;
+  color: #808080;
+}
+
+.log-entry .level-icon {
+  margin-right: 8px;
+}
+
+.log-entry .source {
+  margin-right: 8px;
+  color: #00bcd4;
+}
+
+.log-entry .message {
+  flex: 1;
+}
+
+.log-entry.error .message { color: #f44747; }
+.log-entry.warn .message { color: #dcdcaa; }
+.log-entry.info .message { color: #569cd6; }
+
+/* Command Input */
+.command-input {
+  padding: 10px;
+  border-top: 1px solid #464647;
+}
+
+.command-input input {
+  width: 100%;
+  background-color: transparent;
+  border: 1px solid #464647;
+  border-radius: 4px;
+  padding: 8px;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.command-input input:focus {
+  outline: none;
+  border-color: #007acc;
+}
+
+.command-input input:disabled {
+  opacity: 0.5;
+}
+
+/* Status Bar */
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 20px;
+  border-top: 1px solid #464647;
+  font-size: 12px;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.status-bar > div {
+  display: flex;
+  gap: 10px;
+}
+
+/* Terminal */
+.xterm {
+  height: 100%;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #464647;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #565657;
+}
+
+/* Theme Light Overrides */
+.theme-light .header,
+.theme-light .panel,
+.theme-light .panel-header,
+.theme-light .command-input,
+.theme-light .status-bar {
+  border-color: #d9d9d9;
+}
+
+.theme-light .task-item:hover,
+.theme-light .context-item:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.theme-light .header h1,
+.theme-light .panel-header button {
+  color: #1890ff;
+}
+
+.theme-light .panel.active .panel-header {
+  background-color: rgba(24, 144, 255, 0.1);
+}
+
+.theme-light .panel.active .panel-header h2 {
+  color: #1890ff;
+}
+
+.theme-light .task-item.selected,
+.theme-light .context-item.active {
+  background-color: rgba(24, 144, 255, 0.2);
+}
+
+/* Theme High Contrast Overrides */
+.theme-high-contrast .header,
+.theme-high-contrast .panel,
+.theme-high-contrast .panel-header,
+.theme-high-contrast .command-input,
+.theme-high-contrast .status-bar {
+  border-color: #ffffff;
+}
+
+.theme-high-contrast .header h1,
+.theme-high-contrast .panel-header button {
+  color: #00ffff;
+}
+
+.theme-high-contrast .panel.active .panel-header {
+  background-color: rgba(0, 255, 255, 0.2);
+}
+
+.theme-high-contrast .panel.active .panel-header h2 {
+  color: #00ffff;
+}
+
+.theme-high-contrast .task-item.selected,
+.theme-high-contrast .context-item.active {
+  background-color: rgba(0, 255, 255, 0.3);
+}
