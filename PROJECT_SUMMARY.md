@@ -132,10 +132,46 @@ claude-code-controller/
    - Vi 모드 지원
    - 확장 가능한 플러그인 시스템
 
+## 최종 완료 사항 (Phase 1-3)
+
+### ✅ Phase 1: 터미널 UI 컴포넌트 구현
+- React + Ink/Blessed 기반 터미널 UI
+- Zustand 상태 관리
+- Electron IPC 통신 설정
+- 컴포넌트 계층 구조 완성
+
+### ✅ Phase 2: MCP 서버 실제 연결
+- TaskManager MCP 클라이언트 구현
+- Context7 MCP 클라이언트 구현
+- 자동 서버 실행 (npx)
+- 연결 테스트 도구 제공
+
+### ✅ Phase 3: Electron 앱 패키징
+- macOS 앱 빌드 설정
+- 아이콘 및 리소스 생성
+- 빌드 스크립트 자동화
+- 배포 준비 완료
+
+## 사용 방법
+
+### 개발 모드
+```bash
+npm install
+cp .env.example .env
+npm start
+```
+
+### 프로덕션 빌드
+```bash
+./scripts/build-app.sh
+# dist-app/Claude Code Controller.app 생성
+```
+
 ## 리포지토리
 - GitHub: https://github.com/jung-wan-kim/new-claude
 - 라이센스: MIT
+- 버전: 0.1.0
 
 ---
 
-*이 프로젝트는 Claude Code를 더 효율적으로 사용하기 위한 도구로, 개발자의 생산성을 10배 향상시키는 것을 목표로 합니다.*
+*Claude Code Controller - 개발자의 생산성을 10배 향상시키는 지능형 터미널 도구*

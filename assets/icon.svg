@@ -1,0 +1,25 @@
+
+<svg width="1024" height="1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- 배경 원 -->
+  <circle cx="512" cy="512" r="480" fill="#007acc"/>
+  
+  <!-- CCC 텍스트 -->
+  <text x="512" y="512" 
+        font-family="SF Mono, Monaco, monospace" 
+        font-size="300" 
+        font-weight="bold"
+        fill="white" 
+        text-anchor="middle" 
+        dominant-baseline="central">
+    CCC
+  </text>
+  
+  <!-- 터미널 프롬프트 스타일 장식 -->
+  <text x="200" y="700" 
+        font-family="SF Mono, Monaco, monospace" 
+        font-size="80" 
+        fill="white" 
+        opacity="0.8">
+    &gt;_
+  </text>
+</svg>
