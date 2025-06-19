@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^0.5.0",
+    "dotenv": "^16.3.1",
     "electron-store": "^8.1.0",
     "ink": "^3.2.0",
     "ink-select-input": "^4.2.2",

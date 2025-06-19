@@ -1,101 +1,95 @@
-import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+// MCP 매니저 - TaskManager와 Context7 통합 관리
 import { TaskManagerClient } from './TaskManagerClient';
 import { Context7Client } from './Context7Client';
 
 export class MCPManager {
   public taskManager: TaskManagerClient;
   public context7: Context7Client;
-  private clients: Map<string, Client> = new Map();
+  private initialized = false;
 
   constructor() {
     this.taskManager = new TaskManagerClient();
     this.context7 = new Context7Client();
   }
 
-  async connect(): Promise<void> {
-    console.log('Connecting to MCP servers...');
+  async initialize(): Promise<void> {
+    if (this.initialized) {
+      console.log('MCP Manager already initialized');
+      return;
+    }
+
+    console.log('Initializing MCP servers...');
     
     try {
-      // TaskManager MCP 서버 연결
-      await this.connectTaskManager();
+      // TaskManager 초기화 시도
+      try {
+        await this.taskManager.initialize();
+        console.log('✓ TaskManager MCP client initialized');
+      } catch (error) {
+        console.warn('⚠ TaskManager initialization failed:', error);
+        // TaskManager가 실패해도 계속 진행
+      }
       
-      // Context7 MCP 서버 연결
-      await this.connectContext7();
+      // Context7 초기화 시도
+      try {
+        await this.context7.initialize();
+        console.log('✓ Context7 MCP client initialized');
+      } catch (error) {
+        console.warn('⚠ Context7 initialization failed:', error);
+        // Context7가 실패해도 계속 진행
+      }
       
-      console.log('All MCP servers connected successfully');
+      this.initialized = true;
+      console.log('MCP Manager initialization completed');
     } catch (error) {
-      console.error('Failed to connect MCP servers:', error);
+      console.error('Failed to initialize MCP Manager:', error);
       throw error;
     }
   }
 
-  private async connectTaskManager(): Promise<void> {
-    const transport = new StdioClientTransport({
-      command: 'node',
-      args: [process.env.TASKMANAGER_MCP_PATH || 'taskmanager-mcp-server/server.js'],
-    });
-
-    const client = new Client({
-      name: 'claude-code-controller',
-      version: '0.1.0',
-    }, {
-      capabilities: {}
-    });
-
-    await client.connect(transport);
-    this.clients.set('taskmanager', client);
-    await this.taskManager.initialize(client);
-    
-    console.log('TaskManager MCP connected');
-  }
-
-  private async connectContext7(): Promise<void> {
-    const transport = new StdioClientTransport({
-      command: 'node',
-      args: [process.env.CONTEXT7_MCP_PATH || 'context7-mcp-server/server.js'],
-    });
-
-    const client = new Client({
-      name: 'claude-code-controller',
-      version: '0.1.0',
-    }, {
-      capabilities: {}
-    });
-
-    await client.connect(transport);
-    this.clients.set('context7', client);
-    await this.context7.initialize(client);
-    
-    console.log('Context7 MCP connected');
-  }
-
   async disconnect(): Promise<void> {
-    for (const [name, client] of this.clients) {
-      try {
-        await client.close();
-        console.log(`Disconnected from ${name}`);
-      } catch (error) {
-        console.error(`Error disconnecting from ${name}:`, error);
-      }
+    console.log('Disconnecting MCP servers...');
+    
+    try {
+      await Promise.all([
+        this.taskManager.disconnect().catch(err => 
+          console.error('Error disconnecting TaskManager:', err)
+        ),
+        this.context7.disconnect().catch(err => 
+          console.error('Error disconnecting Context7:', err)
+        )
+      ]);
+      
+      this.initialized = false;
+      console.log('MCP servers disconnected');
+    } catch (error) {
+      console.error('Error during MCP disconnect:', error);
     }
-    this.clients.clear();
   }
 
   async reconnect(): Promise<void> {
+    console.log('Reconnecting MCP servers...');
     await this.disconnect();
-    await this.connect();
+    await this.initialize();
   }
 
-  isConnected(serverName: string): boolean {
-    const client = this.clients.get(serverName);
-    return client ? client.isConnected : false;
+  isInitialized(): boolean {
+    return this.initialized;
   }
 
-  getAllConnectionStatus(): Record<string, boolean> {
+  getStatus(): {
+    initialized: boolean;
+    services: {
+      taskManager: boolean;
+      context7: boolean;
+    };
+  } {
     return {
-      taskmanager: this.isConnected('taskmanager'),
-      context7: this.isConnected('context7'),
+      initialized: this.initialized,
+      services: {
+        taskManager: !!this.taskManager,
+        context7: !!this.context7,
+      }
     };
   }
 }

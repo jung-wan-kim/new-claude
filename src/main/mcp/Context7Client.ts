@@ -1,4 +1,6 @@
+// Context7 MCP 클라이언트
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 
 export interface ContextEntry {
   id: string;
@@ -12,129 +14,154 @@ export interface ContextEntry {
 }
 
 export interface SearchFilters {
-  dateFrom?: string;
-  dateTo?: string;
+  date_from?: string;
+  date_to?: string;
   tags?: string[];
   type?: string;
 }
 
 export class Context7Client {
   private client: Client | null = null;
+  private transport: StdioClientTransport | null = null;
 
-  async initialize(client: Client): Promise<void> {
-    this.client = client;
+  async initialize(): Promise<void> {
+    try {
+      // Context7 MCP 서버 실행
+      this.transport = new StdioClientTransport({
+        command: 'npx',
+        args: ['-y', '@context7/mcp-server'],
+        env: {
+          ...process.env,
+          CONTEXT7_API_KEY: process.env.CONTEXT7_API_KEY || '',
+        },
+      });
+      
+      this.client = new Client({
+        name: 'claude-code-controller',
+        version: '0.1.0',
+      }, {
+        capabilities: {}
+      });
+      
+      await this.client.connect(this.transport);
+      console.log('Context7 MCP client connected');
+      
+      // 사용 가능한 도구 확인
+      const tools = this.client.getServerCapabilities()?.tools;
+      console.log('Available Context7 tools:', tools);
+    } catch (error) {
+      console.error('Failed to connect to Context7 MCP server:', error);
+      throw error;
+    }
   }
 
   async search(query: string, filters?: SearchFilters): Promise<ContextEntry[]> {
-    if (!this.client) throw new Error('Context7 client not initialized');
+    if (!this.client) {
+      throw new Error('Context7 client not initialized');
+    }
 
-    const result = await this.client.callTool(
-      'context7_search',
-      { query, filters }
-    );
+    try {
+      const result = await this.client.callTool('context7_search', {
+        query,
+        filters,
+      });
 
-    return result as ContextEntry[];
+      return result.results as ContextEntry[];
+    } catch (error) {
+      console.error('Failed to search contexts:', error);
+      throw error;
+    }
   }
 
-  async create(data: {
+  async createContext(data: {
     title: string;
     content: string;
     type?: string;
     tags?: string[];
     metadata?: Record<string, any>;
-  }): Promise<{ id: string }> {
-    if (!this.client) throw new Error('Context7 client not initialized');
+  }): Promise<ContextEntry> {
+    if (!this.client) {
+      throw new Error('Context7 client not initialized');
+    }
 
-    const result = await this.client.callTool(
-      'context7_create',
-      data
-    );
-
-    return result as { id: string };
+    try {
+      const result = await this.client.callTool('context7_create', data);
+      return result.context as ContextEntry;
+    } catch (error) {
+      console.error('Failed to create context:', error);
+      throw error;
+    }
   }
 
-  async update(id: string, updates: {
-    title?: string;
-    content?: string;
-    tags?: string[];
-    metadata?: Record<string, any>;
-  }): Promise<void> {
-    if (!this.client) throw new Error('Context7 client not initialized');
+  async updateContext(id: string, updates: Partial<ContextEntry>): Promise<ContextEntry> {
+    if (!this.client) {
+      throw new Error('Context7 client not initialized');
+    }
 
-    await this.client.callTool(
-      'context7_update',
-      { id, updates }
-    );
+    try {
+      const result = await this.client.callTool('context7_update', {
+        id,
+        updates,
+      });
+      return result.context as ContextEntry;
+    } catch (error) {
+      console.error('Failed to update context:', error);
+      throw error;
+    }
   }
 
-  async get(id: string): Promise<ContextEntry> {
-    if (!this.client) throw new Error('Context7 client not initialized');
+  async getContext(id: string): Promise<ContextEntry> {
+    if (!this.client) {
+      throw new Error('Context7 client not initialized');
+    }
 
-    const result = await this.client.callTool(
-      'context7_get',
-      { id }
-    );
-
-    return result as ContextEntry;
+    try {
+      const result = await this.client.callTool('context7_get', { id });
+      return result.context as ContextEntry;
+    } catch (error) {
+      console.error('Failed to get context:', error);
+      throw error;
+    }
   }
 
-  async delete(id: string): Promise<void> {
-    if (!this.client) throw new Error('Context7 client not initialized');
+  async deleteContext(id: string): Promise<void> {
+    if (!this.client) {
+      throw new Error('Context7 client not initialized');
+    }
 
-    await this.client.callTool(
-      'context7_delete',
-      { id }
-    );
+    try {
+      await this.client.callTool('context7_delete', { id });
+    } catch (error) {
+      console.error('Failed to delete context:', error);
+      throw error;
+    }
   }
 
-  async link(sourceId: string, targetId: string, relationship?: string): Promise<void> {
-    if (!this.client) throw new Error('Context7 client not initialized');
+  async linkContexts(sourceId: string, targetId: string, relationship: string): Promise<void> {
+    if (!this.client) {
+      throw new Error('Context7 client not initialized');
+    }
 
-    await this.client.callTool(
-      'context7_link',
-      { source_id: sourceId, target_id: targetId, relationship }
-    );
+    try {
+      await this.client.callTool('context7_link', {
+        source_id: sourceId,
+        target_id: targetId,
+        relationship,
+      });
+    } catch (error) {
+      console.error('Failed to link contexts:', error);
+      throw error;
+    }
   }
 
-  // 프로젝트별 컨텍스트 저장
-  async saveProjectContext(projectName: string, context: any): Promise<{ id: string }> {
-    return await this.create({
-      title: `Project: ${projectName}`,
-      content: JSON.stringify(context, null, 2),
-      type: 'project_context',
-      tags: ['project', projectName],
-      metadata: {
-        projectName,
-        timestamp: new Date().toISOString(),
-      },
-    });
-  }
-
-  // 작업 결과 저장
-  async saveTaskResult(taskId: string, result: any): Promise<{ id: string }> {
-    return await this.create({
-      title: `Task Result: ${taskId}`,
-      content: JSON.stringify(result, null, 2),
-      type: 'task_result',
-      tags: ['task', 'result', taskId],
-      metadata: {
-        taskId,
-        timestamp: new Date().toISOString(),
-      },
-    });
-  }
-
-  // Claude Code 명령어 히스토리 저장
-  async saveCommandHistory(command: string, output: string): Promise<{ id: string }> {
-    return await this.create({
-      title: `Command: ${command.substring(0, 50)}...`,
-      content: JSON.stringify({ command, output }, null, 2),
-      type: 'command_history',
-      tags: ['command', 'history'],
-      metadata: {
-        command,
-        timestamp: new Date().toISOString(),
-      },
-    });
+  async disconnect(): Promise<void> {
+    if (this.client) {
+      await this.client.close();
+      this.client = null;
+    }
+    if (this.transport) {
+      await this.transport.close();
+      this.transport = null;
+    }
   }
 }

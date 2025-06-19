@@ -23,6 +23,7 @@ build/
 .env
 .env.local
 .env.*.local
+!.env.example
 
 # RP 자동화 시스템 파일
 .rp/
