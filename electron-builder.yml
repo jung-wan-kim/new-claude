@@ -1,0 +1,38 @@
+appId: com.claudecodecontroller.app
+productName: Claude Code Controller
+directories:
+  output: dist-app
+  buildResources: build
+files:
+  - dist/**/*
+  - node_modules/**/*
+  - package.json
+  - assets/**/*
+asarUnpack:
+  - node_modules/node-pty/**/*
+  - node_modules/@modelcontextprotocol/**/*
+mac:
+  category: public.app-category.developer-tools
+  icon: build/icon.icns
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
+  type: distribution
+  target:
+    - dmg
+    - zip
+dmg:
+  sign: false
+  artifactName: ${name}-${version}-${arch}.${ext}
+  contents:
+    - x: 130
+      y: 220
+    - x: 410
+      y: 220
+      type: link
+      path: /Applications
+publish:
+  provider: github
+  owner: jung-wan-kim
+  repo: new-claude

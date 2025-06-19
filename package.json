@@ -1,0 +1,60 @@
+{
+  "name": "claude-code-controller",
+  "version": "0.1.0",
+  "description": "Intelligent terminal program to control and manage Claude Code",
+  "main": "dist/main/index.js",
+  "scripts": {
+    "dev": "npm run build:main && electron .",
+    "build": "npm run build:main && npm run build:renderer",
+    "build:main": "tsc -p tsconfig.main.json",
+    "build:renderer": "tsc -p tsconfig.renderer.json",
+    "start": "electron .",
+    "test": "jest",
+    "lint": "eslint src/**/*.ts",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
+    "package": "electron-builder",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "keywords": [
+    "claude",
+    "ai",
+    "terminal",
+    "mcp",
+    "automation",
+    "macos"
+  ],
+  "author": "Jung-wan Kim",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jung-wan-kim/new-claude.git"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.13.0",
+    "blessed": "^0.1.81",
+    "child_process": "^1.0.2",
+    "electron": "^36.5.0",
+    "ink": "^6.0.0",
+    "node-pty": "^1.0.0",
+    "react": "^19.1.0",
+    "zustand": "^5.0.5"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.0.3",
+    "@types/react": "^19.1.8",
+    "@typescript-eslint/eslint-plugin": "^8.34.1",
+    "@typescript-eslint/parser": "^8.34.1",
+    "electron-builder": "^26.0.12",
+    "eslint": "^9.29.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.5.0",
+    "jest": "^30.0.1",
+    "prettier": "^3.5.3",
+    "ts-jest": "^29.4.0",
+    "typescript": "^5.8.3"
+  }
+}
