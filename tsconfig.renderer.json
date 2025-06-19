@@ -1,9 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "outDir": "./dist/renderer",
-    "jsx": "react",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"]
-  },
-  "include": ["src/renderer/**/*", "src/shared/**/*"]
-}
