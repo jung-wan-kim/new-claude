@@ -36,8 +36,7 @@ program
   .command('test-mcp')
   .description('Test MCP server connections')
   .action(async () => {
-    const { testMCPConnection } = await import('./test/test-mcp-connection');
-    await testMCPConnection();
+    await import('./test/test-mcp-connection');
   });
 
 program.parse(process.argv);

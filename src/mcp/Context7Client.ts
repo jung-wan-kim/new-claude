@@ -19,7 +19,7 @@ export class Context7Client {
     this.connected = true;
   }
 
-  async search(query: string, filters?: {
+  async search(_query: string, _filters?: {
     tags?: string[];
     type?: string;
     dateFrom?: string;
@@ -57,7 +57,7 @@ export class Context7Client {
     };
   }
 
-  async get(id: string): Promise<ContextEntry | null> {
+  async get(_id: string): Promise<ContextEntry | null> {
     if (!this.connected) {
       throw new Error('Context7 client not initialized');
     }
@@ -66,7 +66,7 @@ export class Context7Client {
     return null;
   }
 
-  async update(id: string, updates: {
+  async update(_id: string, _updates: {
     title?: string;
     content?: string;
     tags?: string[];
@@ -80,7 +80,7 @@ export class Context7Client {
     throw new Error('Not implemented in mock mode');
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(_id: string): Promise<void> {
     if (!this.connected) {
       throw new Error('Context7 client not initialized');
     }

@@ -5,11 +5,16 @@ export interface Task {
   id: string;
   title: string;
   description: string;
-  status: 'pending' | 'in_progress' | 'completed';
+  status: 'pending' | 'in_progress' | 'completed' | 'failed' | 'cancelled';
   priority: 'high' | 'medium' | 'low';
+  progress?: number; // 진행률 (0-100)
+  startedAt?: string; // 시작 시간
+  error?: string; // 에러 메시지
   createdAt: string;
   updatedAt: string;
   completedAt?: string;
+  contextIds?: string[]; // 관련 컨텍스트 ID들
+  metadata?: Record<string, any>; // 추가 메타데이터
 }
 
 export interface Request {
@@ -138,5 +143,22 @@ export interface Metrics {
     cpuUsage: number;
     memoryUsage: number;
     uptime: number;
+  };
+}
+
+// MCP 관련 타입
+export interface MCPManager {
+  taskManager: any;
+  context7: any;
+  initialize(): Promise<void>;
+  disconnect(): Promise<void>;
+  reconnect(): Promise<void>;
+  isInitialized(): boolean;
+  getStatus(): {
+    initialized: boolean;
+    services: {
+      taskManager: boolean;
+      context7: boolean;
+    };
   };
 }

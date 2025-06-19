@@ -13,11 +13,12 @@ interface WorkPanelOptions {
 
 export class WorkPanel {
   private box: blessed.Widgets.BoxElement;
-  private terminal: blessed.Widgets.LogElement;
+  private terminal: blessed.Widgets.BoxElement;
   private input: blessed.Widgets.TextboxElement;
   private claudeBridge: ClaudeCodeBridge;
   private logStore: LogStore;
   private inputMode = false;
+  private terminalContent: string[] = [];
 
   constructor(options: WorkPanelOptions) {
     this.claudeBridge = options.claudeBridge;
@@ -41,7 +42,7 @@ export class WorkPanel {
     });
 
     // 터미널 출력 영역
-    this.terminal = blessed.log({
+    this.terminal = blessed.box({
       parent: this.box,
       top: 0,
       left: 0,
@@ -91,6 +92,7 @@ export class WorkPanel {
 
     // 터미널 클리어 (Ctrl+K)
     this.terminal.key(['C-k'], () => {
+      this.terminalContent = [];
       this.terminal.setContent('');
       this.showPrompt();
       this.box.screen.render();
@@ -111,12 +113,29 @@ export class WorkPanel {
 
     // Claude 출력 수신
     this.claudeBridge.on('data', (data: string) => {
-      this.terminal.add(data);
+      this.addTerminalLine(data);
+    });
+  }
+
+  private addTerminalLine(line: string) {
+    this.terminalContent.push(line);
+    this.terminal.setContent(this.terminalContent.join('\n'));
+    this.terminal.scroll(1);
+    this.box.screen.render();
+  }
+
+  // Public method for external output
+  appendOutput(data: string) {
+    const lines = data.split('\n');
+    lines.forEach(line => {
+      if (line.trim()) {
+        this.addTerminalLine(line);
+      }
     });
   }
 
   private showPrompt() {
-    this.terminal.add('{cyan-fg}❯{/cyan-fg} Ready (press \'i\' to input command)');
+    this.addTerminalLine('{cyan-fg}❯{/cyan-fg} Ready (press \'i\' to input command)');
   }
 
   private enterInputMode() {
@@ -136,17 +155,17 @@ export class WorkPanel {
   }
 
   private async executeCommand(command: string) {
-    this.terminal.add(`{cyan-fg}❯{/cyan-fg} ${command}`);
-    this.terminal.add('{gray-fg}Executing...{/gray-fg}');
+    this.addTerminalLine(`{cyan-fg}❯{/cyan-fg} ${command}`);
+    this.addTerminalLine('{gray-fg}Executing...{/gray-fg}');
     
     try {
       const result = await this.claudeBridge.execute(command);
       if (result.error) {
-        this.terminal.add(`{red-fg}Error: ${result.error}{/red-fg}`);
+        this.addTerminalLine(`{red-fg}Error: ${result.error}{/red-fg}`);
       }
       this.logStore.addLog('info', `Command executed: ${command}`);
     } catch (error: any) {
-      this.terminal.add(`{red-fg}Error: ${error.message}{/red-fg}`);
+      this.addTerminalLine(`{red-fg}Error: ${error.message}{/red-fg}`);
       this.logStore.addLog('error', `Command failed: ${error.message}`);
     }
     

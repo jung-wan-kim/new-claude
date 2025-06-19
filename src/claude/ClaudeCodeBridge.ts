@@ -101,4 +101,31 @@ export class ClaudeCodeBridge extends EventEmitter {
   isRunning(): boolean {
     return this.currentProcess !== null;
   }
+
+  async executeCommand(command: string, options: ClaudeCodeOptions = {}): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const result = this.execute(command, options);
+      
+      result.then((res) => {
+        if (res.exitCode === 0) {
+          this.emit('command:completed', res);
+          resolve();
+        } else {
+          const error = new Error(res.error || 'Command failed');
+          this.emit('command:failed', error);
+          reject(error);
+        }
+      }).catch((err) => {
+        this.emit('command:failed', err);
+        reject(err);
+      });
+    });
+  }
+
+  async cancelCurrentCommand(): Promise<void> {
+    if (this.isRunning()) {
+      this.kill();
+      this.emit('command:cancelled');
+    }
+  }
 }

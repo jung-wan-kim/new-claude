@@ -7,20 +7,20 @@ export class EnhancedTaskPanel {
   private box: blessed.Widgets.BoxElement;
   private list: blessed.Widgets.ListElement;
   private detailsBox?: blessed.Widgets.BoxElement;
-  private selectedTask?: Task;
+  // private selectedTask?: Task; // 미사용 변수 주석 처리
 
   constructor(
     private parent: blessed.Widgets.Screen,
     private taskStore: TaskStore,
-    private themeManager: ThemeManager
+    _themeManager: ThemeManager // 사용하지 않는 매개변수
   ) {
     this.box = blessed.box({
       parent: this.parent,
       label: ' Tasks ',
       border: { type: 'line' },
       width: '25%',
-      height: '50%',
-      top: 1,
+      height: '100%-1',
+      top: 0,
       left: 0,
       scrollable: true,
       keys: true,
@@ -65,7 +65,7 @@ export class EnhancedTaskPanel {
   private setupEventHandlers() {
     // Enter - 작업 실행
     this.list.key(['enter'], () => {
-      const selected = this.list.selected;
+      const selected = (this.list as any).selected || 0;
       const tasks = this.taskStore.getTasks();
       if (selected >= 0 && selected < tasks.length) {
         const task = tasks[selected];
@@ -75,7 +75,7 @@ export class EnhancedTaskPanel {
 
     // Space - 상세 정보 토글
     this.list.key(['space'], () => {
-      const selected = this.list.selected;
+      const selected = (this.list as any).selected || 0;
       const tasks = this.taskStore.getTasks();
       if (selected >= 0 && selected < tasks.length) {
         const task = tasks[selected];
@@ -90,7 +90,7 @@ export class EnhancedTaskPanel {
 
     // d - 작업 삭제
     this.list.key(['d'], () => {
-      const selected = this.list.selected;
+      const selected = (this.list as any).selected || 0;
       const tasks = this.taskStore.getTasks();
       if (selected >= 0 && selected < tasks.length) {
         const task = tasks[selected];
@@ -117,12 +117,6 @@ export class EnhancedTaskPanel {
     this.taskStore.on('task:removed', () => this.render());
   }
 
-  private render() {
-    const tasks = this.taskStore.getTasks();
-    const items = tasks.map(task => this.renderTaskItem(task));
-    this.list.setItems(items);
-    this.parent.render();
-  }
 
   private renderTaskItem(task: Task): string {
     const statusIcon = this.getStatusIcon(task.status);
@@ -180,7 +174,7 @@ export class EnhancedTaskPanel {
       }
     });
 
-    const titleLabel = blessed.text({
+    blessed.text({
       parent: form,
       content: 'Title:',
       top: 1,
@@ -203,7 +197,7 @@ export class EnhancedTaskPanel {
       inputOnFocus: true
     });
 
-    const descLabel = blessed.text({
+    blessed.text({
       parent: form,
       content: 'Description:',
       top: 6,
@@ -331,8 +325,8 @@ export class EnhancedTaskPanel {
 {bold}Status:{/bold} {${statusColor}-fg}${task.status}{/}
 {bold}Priority:{/bold} ${task.priority || 'normal'}
 {bold}Created:{/bold} ${task.createdAt?.toLocaleString() || 'Unknown'}
-${task.startedAt ? `{bold}Started:{/bold} ${task.startedAt.toLocaleString()}` : ''}
-${task.completedAt ? `{bold}Completed:{/bold} ${task.completedAt.toLocaleString()}` : ''}
+${task.startedAt ? `{bold}Started:{/bold} ${new Date(task.startedAt).toLocaleString()}` : ''}
+${task.completedAt ? `{bold}Completed:{/bold} ${new Date(task.completedAt).toLocaleString()}` : ''}
 ${task.progress !== undefined ? `{bold}Progress:{/bold} ${task.progress}%` : ''}
 
 {bold}Description:{/bold}
@@ -360,7 +354,7 @@ ${task.error ? `{bold}{red-fg}Error:{/red-fg}{/bold}\n${task.error}` : ''}
       }
     });
 
-    confirm.ask(`Delete task "${task.title}"? (y/n)`, (err, value) => {
+    confirm.ask(`Delete task "${task.title}"? (y/n)`, (_err, value) => {
       if (value && value.toLowerCase() === 'y') {
         this.parent.emit('task:delete', task);
       }
@@ -382,7 +376,7 @@ ${task.error ? `{bold}{red-fg}Error:{/red-fg}{/bold}\n${task.error}` : ''}
       vi: true
     });
 
-    prompt.input('Enter search term:', '', (err, value) => {
+    prompt.input('Enter search term:', '', (_err, value) => {
       if (value) {
         this.filterTasks(value);
       }
@@ -404,5 +398,19 @@ ${task.error ? `{bold}{red-fg}Error:{/red-fg}{/bold}\n${task.error}` : ''}
 
   focus() {
     this.list.focus();
+  }
+
+  unfocus() {
+    // blessed list doesn't have unfocus, but we can blur it
+    if ((this.parent as any).focused === this.list) {
+      this.box.focus();
+    }
+  }
+
+  render() {
+    const tasks = this.taskStore.getTasks();
+    const items = tasks.map(task => this.renderTaskItem(task));
+    this.list.setItems(items);
+    this.parent.render();
   }
 }

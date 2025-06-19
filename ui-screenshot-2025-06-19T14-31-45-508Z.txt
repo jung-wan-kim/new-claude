@@ -1,0 +1,9 @@
+Starting UI test...
+🚀 Starting Claude Code Controller...
+
+🚀 Initializing MCP servers...
+TaskManager client initialized (mock mode)
+✅ taskManager initialized successfully
+Context7 client initialized (mock mode)
+✅ context7 initialized successfully
+]0;Claude Code Controller[?1049h[?1h=[1;1r[?25l[1;1H[H[2J[?1000h[?1002h[?1003h[?1005h7[1;1H[44;37mR[m8

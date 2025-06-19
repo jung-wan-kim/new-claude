@@ -22,7 +22,7 @@ export class TaskManagerClient {
     this.connected = true;
   }
 
-  async createRequest(data: {
+  async createRequest(_data: {
     originalRequest: string;
     tasks: Array<{ title: string; description: string }>;
     splitDetails?: string;
@@ -35,7 +35,7 @@ export class TaskManagerClient {
     return { requestId: `req-${Date.now()}` };
   }
 
-  async getNextTask(requestId: string): Promise<Task | null> {
+  async getNextTask(_requestId: string): Promise<Task | null> {
     if (!this.connected) {
       throw new Error('TaskManager client not initialized');
     }
@@ -44,7 +44,7 @@ export class TaskManagerClient {
     return null;
   }
 
-  async markTaskDone(taskId: string, completedDetails?: string): Promise<void> {
+  async markTaskDone(_taskId: string, _completedDetails?: string): Promise<void> {
     if (!this.connected) {
       throw new Error('TaskManager client not initialized');
     }
@@ -63,5 +63,29 @@ export class TaskManagerClient {
 
   async disconnect(): Promise<void> {
     this.connected = false;
+  }
+
+  // MCP 도구 이름과 매칭되는 메소드들
+  async request_planning(params: any): Promise<any> {
+    return this.createRequest(params);
+  }
+
+  async get_next_task(params: { requestId: string }): Promise<any> {
+    const task = await this.getNextTask(params.requestId);
+    return task ? { status: 'next_task', task } : { status: 'all_tasks_done' };
+  }
+
+  async mark_task_done(params: any): Promise<any> {
+    await this.markTaskDone(params.taskId, params.completedDetails);
+    return { status: 'task_marked_done' };
+  }
+
+  async approve_task_completion(_params: any): Promise<any> {
+    // 모의 구현
+    return { status: 'task_approved' };
+  }
+
+  async list_requests(): Promise<any> {
+    return this.listRequests();
   }
 }

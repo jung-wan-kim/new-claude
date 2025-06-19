@@ -49,7 +49,7 @@ export function getFileType(filename: string): string {
   const ext = getFileExtension(filename);
   
   for (const [type, extensions] of Object.entries(FILE_EXTENSIONS)) {
-    if (extensions.includes(ext)) {
+    if ((extensions as readonly string[]).includes(ext)) {
       return type;
     }
   }

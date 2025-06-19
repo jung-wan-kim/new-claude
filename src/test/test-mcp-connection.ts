@@ -1,5 +1,5 @@
 // MCP 서버 연결 테스트
-import { MCPManager } from '../main/mcp/MCPManager';
+import { EnhancedMCPManager } from '../mcp/EnhancedMCPManager';
 import * as dotenv from 'dotenv';
 
 // 환경 변수 로드
@@ -8,7 +8,7 @@ dotenv.config();
 async function testMCPConnection() {
   console.log('=== MCP Connection Test ===\n');
   
-  const mcpManager = new MCPManager();
+  const mcpManager = new EnhancedMCPManager();
   
   try {
     // MCP 매니저 초기화
@@ -51,7 +51,7 @@ async function testMCPConnection() {
     console.log('\n4. Testing Context7...');
     try {
       // 컨텍스트 생성
-      const context = await mcpManager.context7.createContext({
+      const context = await mcpManager.context7.create({
         title: 'Test Context',
         content: 'This is a test context entry',
         type: 'test',
@@ -64,7 +64,7 @@ async function testMCPConnection() {
       console.log('   ✓ Search results:', searchResults.length);
       
       // 삭제
-      await mcpManager.context7.deleteContext(context.id);
+      await mcpManager.context7.delete(context.id);
       console.log('   ✓ Deleted test context');
     } catch (error) {
       console.log('   ✗ Context7 test failed:', error);

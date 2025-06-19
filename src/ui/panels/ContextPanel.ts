@@ -1,6 +1,6 @@
 import * as blessed from 'blessed';
 import { ContextStore } from '../../stores/ContextStore';
-import { MCPManager } from '../../mcp/MCPManager';
+import { MCPManager } from '../../shared/types';
 
 interface ContextPanelOptions {
   parent: blessed.Widgets.Node;
@@ -15,11 +15,12 @@ export class ContextPanel {
   private box: blessed.Widgets.BoxElement;
   private list: blessed.Widgets.ListElement;
   private contextStore: ContextStore;
-  private mcpManager: MCPManager;
+  private mcpManager: MCPManager; // eslint-disable-line @typescript-eslint/no-unused-vars
 
   constructor(options: ContextPanelOptions) {
     this.contextStore = options.contextStore;
     this.mcpManager = options.mcpManager;
+    void this.mcpManager; // To avoid unused variable warning
 
     // 패널 컨테이너
     this.box = blessed.box({
@@ -63,7 +64,7 @@ export class ContextPanel {
 
   private setupEventHandlers() {
     // 컨텍스트 선택
-    this.list.on('select', (item, index) => {
+    this.list.on('select', (_item, index) => {
       const context = this.contextStore.getContexts()[index];
       if (context) {
         this.contextStore.setActiveContext(context.id);
@@ -159,7 +160,7 @@ ${context.content}`,
       },
     });
 
-    const contentInput = blessed.textarea({
+    blessed.textarea({
       parent: form,
       name: 'content',
       top: 3,

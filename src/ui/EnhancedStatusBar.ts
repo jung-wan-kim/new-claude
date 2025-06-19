@@ -21,11 +21,11 @@ export class EnhancedStatusBar {
   private rightSection: blessed.Widgets.TextElement;
   private spinner: string[] = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
   private spinnerIndex: number = 0;
-  private spinnerTimer?: NodeJS.Timer;
+  private spinnerTimer?: NodeJS.Timeout;
 
   constructor(
     private parent: blessed.Widgets.Screen,
-    private themeManager: ThemeManager
+    _themeManager: ThemeManager
   ) {
     this.box = blessed.box({
       parent: this.parent,
@@ -191,8 +191,6 @@ export class EnhancedStatusBar {
   }
 
   setTheme(theme: string) {
-    const themeObj = this.themeManager.getCurrentTheme();
-    
     const bgColor = theme === 'dark' ? 'blue' : 
                      theme === 'light' ? 'cyan' : 'yellow';
     const fgColor = theme === 'dark' ? 'white' : 'black';

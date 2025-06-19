@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import { TaskManagerClient } from './TaskManagerClient';
 import { Context7Client } from './Context7Client';
+import { MCPManager } from '../shared/types';
 
 export interface RetryPolicy {
   maxRetries: number;
@@ -36,14 +37,21 @@ export interface InitializationResult {
   };
 }
 
-export class EnhancedMCPManager extends EventEmitter {
+export class EnhancedMCPManager extends EventEmitter implements MCPManager {
   private servers: Map<string, MCPServerState> = new Map();
-  private healthCheckTimers: Map<string, NodeJS.Timer> = new Map();
+  private healthCheckTimers: Map<string, NodeJS.Timeout> = new Map();
   private initTimeout: number;
+  private _initialized = false;
+
+  // MCPManager interface properties
+  public taskManager: TaskManagerClient;
+  public context7: Context7Client;
 
   constructor(config?: { initTimeout?: number }) {
     super();
     this.initTimeout = config?.initTimeout || 30000;
+    this.taskManager = new TaskManagerClient();
+    this.context7 = new Context7Client();
     this.setupServers();
   }
 
@@ -51,7 +59,7 @@ export class EnhancedMCPManager extends EventEmitter {
     // TaskManager 설정
     this.registerServer({
       name: 'taskManager',
-      client: new TaskManagerClient(),
+      client: this.taskManager,
       required: false,
       retryPolicy: {
         maxRetries: 3,
@@ -65,7 +73,7 @@ export class EnhancedMCPManager extends EventEmitter {
     // Context7 설정
     this.registerServer({
       name: 'context7',
-      client: new Context7Client(),
+      client: this.context7,
       required: false,
       retryPolicy: {
         maxRetries: 3,
@@ -86,7 +94,15 @@ export class EnhancedMCPManager extends EventEmitter {
     });
   }
 
-  async initialize(): Promise<InitializationResult> {
+  async initialize(): Promise<void> {
+    const results = await this._initialize();
+    if (!results.success) {
+      throw new Error('Required MCP servers failed to initialize');
+    }
+    this._initialized = true;
+  }
+
+  private async _initialize(): Promise<InitializationResult> {
     const results: InitializationResult = {
       success: true,
       servers: {}
@@ -223,7 +239,7 @@ export class EnhancedMCPManager extends EventEmitter {
     console.log('Disconnecting MCP servers...');
     
     // 헬스체크 타이머 정리
-    for (const [name, timer] of this.healthCheckTimers) {
+    for (const [, timer] of this.healthCheckTimers) {
       clearInterval(timer);
     }
     this.healthCheckTimers.clear();
@@ -246,23 +262,39 @@ export class EnhancedMCPManager extends EventEmitter {
     }
 
     await Promise.all(disconnectPromises);
+    this._initialized = false;
     console.log('All MCP servers disconnected');
   }
 
-  getServer(name: string): any {
-    const state = this.servers.get(name);
-    if (!state) {
-      throw new Error(`Unknown server: ${name}`);
-    }
-    
-    if (state.status !== 'connected') {
-      console.warn(`Server ${name} is not connected (status: ${state.status})`);
-    }
-    
-    return state.client;
+  async reconnect(): Promise<void> {
+    await this.disconnect();
+    await this.initialize();
+  }
+
+  isInitialized(): boolean {
+    return this._initialized;
   }
 
   getStatus(): {
+    initialized: boolean;
+    services: {
+      taskManager: boolean;
+      context7: boolean;
+    };
+  } {
+    const taskManagerState = this.servers.get('taskManager');
+    const context7State = this.servers.get('context7');
+    
+    return {
+      initialized: this._initialized,
+      services: {
+        taskManager: taskManagerState?.status === 'connected',
+        context7: context7State?.status === 'connected'
+      }
+    };
+  }
+
+  getDetailedStatus(): {
     initialized: boolean;
     servers: {
       [key: string]: {
@@ -285,17 +317,21 @@ export class EnhancedMCPManager extends EventEmitter {
     }
 
     return {
-      initialized: Array.from(this.servers.values()).some(s => s.status === 'connected'),
+      initialized: this._initialized,
       servers
     };
   }
 
-  // 기존 MCPManager와의 호환성을 위한 getter
-  get taskManager(): TaskManagerClient {
-    return this.getServer('taskManager');
-  }
-
-  get context7(): Context7Client {
-    return this.getServer('context7');
+  getServer(name: string): any {
+    const state = this.servers.get(name);
+    if (!state) {
+      throw new Error(`Unknown server: ${name}`);
+    }
+    
+    if (state.status !== 'connected') {
+      console.warn(`Server ${name} is not connected (status: ${state.status})`);
+    }
+    
+    return state.client;
   }
 }

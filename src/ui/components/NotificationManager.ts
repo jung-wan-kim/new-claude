@@ -114,7 +114,7 @@ export class NotificationManager {
       element.right = Math.min(position, originalRight as number);
       element.screen.render();
       
-      if (position >= originalRight) {
+      if (position >= (originalRight as number)) {
         clearInterval(interval);
       }
     }, 20);

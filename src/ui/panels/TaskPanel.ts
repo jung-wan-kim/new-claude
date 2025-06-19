@@ -1,6 +1,6 @@
 import * as blessed from 'blessed';
 import { TaskStore } from '../../stores/TaskStore';
-import { MCPManager } from '../../mcp/MCPManager';
+import { MCPManager } from '../../shared/types';
 
 interface TaskPanelOptions {
   parent: blessed.Widgets.Node;
@@ -15,11 +15,12 @@ export class TaskPanel {
   private box: blessed.Widgets.BoxElement;
   private list: blessed.Widgets.ListElement;
   private taskStore: TaskStore;
-  private mcpManager: MCPManager;
+  private mcpManager: MCPManager; // eslint-disable-line @typescript-eslint/no-unused-vars
 
   constructor(options: TaskPanelOptions) {
     this.taskStore = options.taskStore;
     this.mcpManager = options.mcpManager;
+    void this.mcpManager; // To avoid unused variable warning
 
     // 패널 컨테이너
     this.box = blessed.box({
@@ -63,7 +64,7 @@ export class TaskPanel {
 
   private setupEventHandlers() {
     // 작업 선택
-    this.list.on('select', (item, index) => {
+    this.list.on('select', (_item, index) => {
       const task = this.taskStore.getTasks()[index];
       if (task) {
         this.taskStore.setActiveTask(task.id);
@@ -124,7 +125,7 @@ export class TaskPanel {
       },
     });
 
-    const descInput = blessed.textbox({
+    blessed.textbox({
       parent: form,
       name: 'description',
       top: 3,

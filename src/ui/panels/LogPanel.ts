@@ -11,7 +11,7 @@ interface LogPanelOptions {
 
 export class LogPanel {
   private box: blessed.Widgets.BoxElement;
-  private log: blessed.Widgets.LogElement;
+  private log: blessed.Widgets.BoxElement; // LogElement를 BoxElement로 변경
   private logStore: LogStore;
 
   constructor(options: LogPanelOptions) {
@@ -35,7 +35,7 @@ export class LogPanel {
     });
 
     // 로그 영역
-    this.log = blessed.log({
+    this.log = blessed.box({
       parent: this.box,
       top: 0,
       left: 0,
@@ -128,7 +128,7 @@ export class LogPanel {
 
   render() {
     const logs = this.logStore.getFilteredLogs();
-    this.log.setContent('');
+    const content: string[] = [];
     
     logs.forEach(log => {
       const timestamp = new Date(log.timestamp).toLocaleTimeString();
@@ -146,8 +146,10 @@ export class LogPanel {
         error: '❌',
       }[log.level] || '•';
       
-      this.log.add(`{gray-fg}${timestamp}{/} ${icon} {${levelColor}-fg}[${log.level.toUpperCase()}]{/} ${log.message}`);
+      content.push(`{gray-fg}${timestamp}{/} ${icon} {${levelColor}-fg}[${log.level.toUpperCase()}]{/} ${log.message}`);
     });
+    
+    this.log.setContent(content.join('\n'));
   }
 
   focus() {

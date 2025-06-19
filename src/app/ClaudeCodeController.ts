@@ -34,16 +34,16 @@ export class ClaudeCodeController {
   }
 
   private setupMCPEventListeners() {
-    this.mcpManager.on('initialized', (result) => {
-      this.logStore.info(`MCP initialization complete: ${JSON.stringify(result)}`, 'MCP');
+    this.mcpManager.on('initialized', (_result) => {
+      this.logStore.info('MCP initialization complete', 'MCP');
     });
 
-    this.mcpManager.on('serverDisconnected', (name, error) => {
-      this.logStore.warn(`MCP server ${name} disconnected: ${error.message}`, 'MCP');
+    this.mcpManager.on('serverDisconnected', (_name, _error) => {
+      this.logStore.warn('MCP server disconnected', 'MCP');
     });
 
-    this.mcpManager.on('serverReconnected', (name) => {
-      this.logStore.info(`MCP server ${name} reconnected`, 'MCP');
+    this.mcpManager.on('serverReconnected', (_name) => {
+      this.logStore.info('MCP server reconnected', 'MCP');
     });
   }
 
@@ -74,7 +74,41 @@ export class ClaudeCodeController {
     // 화면 렌더링
     this.screen.render();
     
+    // 샘플 Task 추가 (개발 모드)
+    if (process.env.NODE_ENV === 'development') {
+      this.addSampleTasks();
+    }
+    
     this.logStore.info('Application started successfully', 'System');
+  }
+
+  private addSampleTasks() {
+    const sampleTasks = [
+      {
+        title: 'Welcome to Claude Code Controller',
+        description: 'Press Enter to execute this task',
+        priority: 'high' as const
+      },
+      {
+        title: 'Check MCP Connection',
+        description: 'Verify MCP servers are connected',
+        priority: 'medium' as const
+      },
+      {
+        title: 'Run Tests',
+        description: 'Execute test suite',
+        priority: 'low' as const
+      }
+    ];
+
+    sampleTasks.forEach(task => {
+      this.taskStore.addTask({
+        ...task,
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
+    });
   }
 
   private initializeScreen() {

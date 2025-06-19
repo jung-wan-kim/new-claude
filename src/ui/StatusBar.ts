@@ -1,6 +1,6 @@
 import * as blessed from 'blessed';
 import { TaskStore } from '../stores/TaskStore';
-import { MCPManager } from '../mcp/MCPManager';
+import { MCPManager } from '../shared/types';
 
 interface StatusBarOptions {
   parent: blessed.Widgets.Node;
