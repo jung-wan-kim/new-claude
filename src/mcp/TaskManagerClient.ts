@@ -33,7 +33,14 @@ export class TaskManagerClient {
   constructor(options: TaskManagerClientOptions = {}) {
     this.mode = options.mode || 'mock';
     this.serverPath = options.serverPath || 'npx';
-    this.serverArgs = options.serverArgs || ['-y', '@modelcontextprotocol/server-taskmanager'];
+    this.serverArgs = options.serverArgs || [
+      '-y',
+      '@smithery/cli@latest',
+      'run',
+      '@kazuph/mcp-taskmanager',
+      '--key',
+      '3e7735c8-b9d5-45ec-a2da-4d5ca70dfc17',
+    ];
   }
 
   async initialize(): Promise<void> {

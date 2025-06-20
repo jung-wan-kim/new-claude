@@ -151,4 +151,12 @@ export class ThemeManager {
     const colorKey = colorMap[status] || 'foreground';
     return theme.colors[colorKey];
   }
+
+  getTheme(): string {
+    return this.currentTheme;
+  }
+
+  setTheme(themeName: string) {
+    this.switchTheme(themeName);
+  }
 }

@@ -8,6 +8,7 @@ import { EnhancedTaskPanel } from './panels/EnhancedTaskPanel';
 import { EnhancedStatusBar } from './EnhancedStatusBar';
 import { ThemeManager } from './components/ThemeManager';
 import { NotificationManager } from './components/NotificationManager';
+import { HelpModal } from './components/HelpModal';
 import { TaskStore } from '../stores/TaskStore';
 import { ContextStore } from '../stores/ContextStore';
 import { LogStore } from '../stores/LogStore';
@@ -26,8 +27,11 @@ export class UIManager {
   private enhancedStatusBar!: EnhancedStatusBar;
   private themeManager: ThemeManager;
   private notificationManager: NotificationManager;
+  private helpModal: HelpModal;
   private taskExecutor: TaskExecutor;
   private useEnhancedUI: boolean = true;
+  private currentFocus: 'tasks' | 'work' | 'context' | 'logs' = 'tasks';
+  private currentMode: 'normal' | 'input' | 'command' = 'normal';
 
   constructor(
     screen: blessed.Widgets.Screen,
@@ -40,6 +44,7 @@ export class UIManager {
     this.screen = screen;
     this.themeManager = new ThemeManager();
     this.notificationManager = new NotificationManager();
+    this.helpModal = new HelpModal(screen);
     this.taskExecutor = new TaskExecutor(taskStore, mcpManager, claudeBridge, logStore, {
       autoApprove: true,
       maxConcurrent: 3,
@@ -170,6 +175,21 @@ export class UIManager {
     this.screen.key(['r'], () => {
       this.render();
     });
+
+    // 테마 토글 (t)
+    this.screen.key(['t'], () => {
+      this.toggleTheme();
+    });
+
+    // 전체 화면 (F11)
+    this.screen.key(['f11'], () => {
+      this.toggleFullscreen();
+    });
+
+    // ESC - 현재 패널에서 나가기
+    this.screen.key(['escape'], () => {
+      this.handleEscape();
+    });
   }
 
   private focusPanel(panel: 'tasks' | 'work' | 'context' | 'logs') {
@@ -203,54 +223,13 @@ export class UIManager {
         break;
     }
 
+    this.currentFocus = panel;
+    this.updateStatusBar();
     this.screen.render();
   }
 
   private showHelp() {
-    const helpBox = blessed.box({
-      parent: this.screen,
-      top: 'center',
-      left: 'center',
-      width: '50%',
-      height: '50%',
-      content: `
-{center}Claude Code Controller - Help{/center}
-
-{bold}Global Keys:{/bold}
-  Ctrl+1-4  Switch panels
-  ?         Show this help
-  r         Refresh screen
-  q         Quit
-
-{bold}Task Panel:{/bold}
-  ↑/↓       Navigate tasks
-  Enter     Select task
-  n         New task
-
-{bold}Work Panel:{/bold}
-  i         Input mode
-  Esc       Exit input mode
-  Ctrl+K    Clear terminal
-
-Press any key to close...`,
-      tags: true,
-      border: {
-        type: 'line',
-      },
-      style: {
-        border: {
-          fg: 'cyan',
-        },
-      },
-    });
-
-    helpBox.on('keypress', () => {
-      helpBox.destroy();
-      this.screen.render();
-    });
-
-    helpBox.focus();
-    this.screen.render();
+    this.helpModal.toggle();
   }
 
   private setupEventListeners() {
@@ -340,39 +319,145 @@ Press any key to close...`,
     this.screen.on('theme:changed', () => {
       this.render();
     });
+
+    // Mode 변경 이벤트
+    this.screen.on('mode:changed', (mode: 'normal' | 'input' | 'command') => {
+      this.currentMode = mode;
+      this.updateStatusBar();
+    });
   }
 
   render() {
     // 각 패널 업데이트
     if (this.useEnhancedUI) {
       if (this.enhancedTaskPanel) this.enhancedTaskPanel.render();
-      if (this.enhancedStatusBar) {
-        const activeTask = this.taskStore.getActiveTask();
-        this.enhancedStatusBar.updateStatus({
-          mode: 'Normal',
-          focusedPanel: 'Tasks',
-          activeTask: activeTask
-            ? {
-                title: activeTask.title,
-                progress: activeTask.progress,
-              }
-            : undefined,
-          mcpServers: {
-            taskManager: { connected: this.mcpManager.getStatus().services.taskManager },
-            context7: { connected: this.mcpManager.getStatus().services.context7 },
-          },
-        });
-      }
     } else {
       if (this.taskPanel) this.taskPanel.render();
-      if (this.statusBar) this.statusBar.render();
     }
 
     this.workPanel.render();
     this.contextPanel.render();
     this.logPanel.render();
 
+    // 상태바 업데이트
+    this.updateStatusBar();
+
     // 화면 렌더링
     this.screen.render();
+  }
+
+  private updateStatusBar() {
+    if (this.useEnhancedUI && this.enhancedStatusBar) {
+      const activeTask = this.taskStore.getActiveTask();
+      const status = this.mcpManager.getStatus();
+      
+      this.enhancedStatusBar.updateStatus({
+        mode: this.currentMode.charAt(0).toUpperCase() + this.currentMode.slice(1),
+        focusedPanel: this.getPanelDisplayName(this.currentFocus),
+        activeTask: activeTask
+          ? {
+              title: activeTask.title,
+              progress: activeTask.progress,
+            }
+          : undefined,
+        mcpServers: {
+          taskManager: { 
+            connected: status.services.taskManager,
+            status: status.serverStatuses?.taskManager || undefined
+          },
+          context7: { 
+            connected: status.services.context7,
+            status: status.serverStatuses?.context7 || undefined
+          },
+        },
+        inputMode: this.currentMode === 'input',
+        commandMode: this.currentMode === 'command',
+      });
+    } else if (this.statusBar) {
+      this.statusBar.render();
+    }
+  }
+
+  private getPanelDisplayName(panel: string): string {
+    const names: { [key: string]: string } = {
+      'tasks': 'Tasks',
+      'work': 'Work',
+      'context': 'Context',
+      'logs': 'Logs',
+    };
+    return names[panel] || panel;
+  }
+
+  private toggleTheme() {
+    const themes = ['dark', 'light', 'high-contrast'];
+    const currentTheme = this.themeManager.getTheme();
+    const currentIndex = themes.indexOf(currentTheme);
+    const nextIndex = (currentIndex + 1) % themes.length;
+    const nextTheme = themes[nextIndex] as any;
+    
+    this.themeManager.setTheme(nextTheme);
+    this.applyTheme(nextTheme);
+    this.notificationManager.showNotification(
+      this.screen,
+      `Theme changed to ${nextTheme}`,
+      'info'
+    );
+  }
+
+  private applyTheme(theme: string) {
+    // 각 패널에 테마 적용
+    if (this.enhancedStatusBar) {
+      this.enhancedStatusBar.setTheme(theme);
+    }
+    
+    // 화면 새로고침
+    this.render();
+  }
+
+  private toggleFullscreen() {
+    // Blessed에서는 직접적인 전체화면 지원이 없으므로 
+    // 사용자에게 터미널 전체화면 단축키를 안내
+    this.notificationManager.showNotification(
+      this.screen,
+      'Use your terminal fullscreen shortcut (usually F11)',
+      'info'
+    );
+  }
+
+  private handleEscape() {
+    // 현재 모드가 input이면 normal로 변경
+    if (this.currentMode !== 'normal') {
+      this.currentMode = 'normal';
+      this.screen.emit('mode:changed', 'normal');
+      this.updateStatusBar();
+    }
+  }
+
+  // 빠른 패널 전환을 위한 메서드
+  switchToPanel(panel: 'tasks' | 'work' | 'context' | 'logs') {
+    this.focusPanel(panel);
+  }
+
+  // 태스크 실행 상태 업데이트
+  updateTaskProgress(taskId: string, progress: number) {
+    const task = this.taskStore.getTaskById(taskId);
+    if (task) {
+      task.progress = progress;
+      this.taskStore.updateTask(task);
+      this.updateStatusBar();
+    }
+  }
+
+  // 화면 새로골침 최적화
+  private _renderDebounced = this.debounce(() => {
+    this.screen.render();
+  }, 16); // 60fps
+
+  private debounce(func: Function, wait: number) {
+    let timeout: NodeJS.Timeout;
+    return (...args: any[]) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), wait);
+    };
   }
 }

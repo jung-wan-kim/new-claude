@@ -30,7 +30,7 @@ export class Context7Client {
   constructor(options: Context7ClientOptions = {}) {
     this.mode = options.mode || 'mock';
     this.serverPath = options.serverPath || 'npx';
-    this.serverArgs = options.serverArgs || ['-y', '@modelcontextprotocol/server-context7'];
+    this.serverArgs = options.serverArgs || ['-y', '@upstash/context7-mcp@latest'];
   }
 
   async initialize(): Promise<void> {

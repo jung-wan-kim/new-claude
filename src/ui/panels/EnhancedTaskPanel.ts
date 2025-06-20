@@ -123,12 +123,22 @@ export class EnhancedTaskPanel {
 
     let line = `{${statusColor}-fg}${statusIcon}{/} ${task.title}`;
 
+    // 진행률 시각화
     if (task.status === 'in_progress' && task.progress !== undefined) {
-      line += ` {cyan-fg}[${task.progress}%]{/}`;
+      const progressBar = this.createProgressBar(task.progress);
+      line += ` ${progressBar}`;
     }
 
+    // 우선순위 표시
     if (task.priority === 'high') {
-      line = `{red-fg}!{/} ${line}`;
+      line = `{red-fg}↑{/} ${line}`;
+    } else if (task.priority === 'low') {
+      line = `{gray-fg}↓{/} ${line}`;
+    }
+
+    // 예상 소요 시간 표시
+    if (task.estimatedTime) {
+      line += ` {dim-fg}(⌚${task.estimatedTime}){/}`;
     }
 
     return line;
@@ -136,11 +146,12 @@ export class EnhancedTaskPanel {
 
   private getStatusIcon(status: string): string {
     const icons: { [key: string]: string } = {
-      pending: '◯',
+      pending: '○',
       in_progress: '◐',
-      completed: '✓',
-      failed: '✗',
+      completed: '✔',
+      failed: '✘',
       paused: '⏸',
+      cancelled: '⛔',
     };
     return icons[status] || '?';
   }
@@ -152,6 +163,7 @@ export class EnhancedTaskPanel {
       completed: 'green',
       failed: 'red',
       paused: 'gray',
+      cancelled: 'magenta',
     };
     return colors[status] || 'white';
   }
@@ -318,21 +330,45 @@ export class EnhancedTaskPanel {
 
   private formatTaskDetails(task: Task): string {
     const statusColor = this.getStatusColor(task.status);
-    return `
+    const statusIcon = this.getStatusIcon(task.status);
+    
+    let details = `
 {bold}ID:{/bold} ${task.id}
 {bold}Title:{/bold} ${task.title}
-{bold}Status:{/bold} {${statusColor}-fg}${task.status}{/}
-{bold}Priority:{/bold} ${task.priority || 'normal'}
+{bold}Status:{/bold} {${statusColor}-fg}${statusIcon} ${task.status}{/}
+{bold}Priority:{/bold} ${this.getPriorityDisplay(task.priority || 'normal')}
 {bold}Created:{/bold} ${task.createdAt?.toLocaleString() || 'Unknown'}
-${task.startedAt ? `{bold}Started:{/bold} ${new Date(task.startedAt).toLocaleString()}` : ''}
-${task.completedAt ? `{bold}Completed:{/bold} ${new Date(task.completedAt).toLocaleString()}` : ''}
-${task.progress !== undefined ? `{bold}Progress:{/bold} ${task.progress}%` : ''}
+`;
 
+    if (task.startedAt) {
+      details += `{bold}Started:{/bold} ${new Date(task.startedAt).toLocaleString()}\n`;
+      const duration = this.calculateDuration(task.startedAt, task.completedAt);
+      details += `{bold}Duration:{/bold} ${duration}\n`;
+    }
+    
+    if (task.completedAt) {
+      details += `{bold}Completed:{/bold} ${new Date(task.completedAt).toLocaleString()}\n`;
+    }
+    
+    if (task.progress !== undefined) {
+      const progressBar = this.createDetailedProgressBar(task.progress);
+      details += `{bold}Progress:{/bold} ${progressBar}\n`;
+    }
+    
+    if (task.estimatedTime) {
+      details += `{bold}Estimated Time:{/bold} ${task.estimatedTime}\n`;
+    }
+
+    details += `
 {bold}Description:{/bold}
 ${task.description || 'No description provided'}
-
-${task.error ? `{bold}{red-fg}Error:{/red-fg}{/bold}\n${task.error}` : ''}
 `;
+
+    if (task.error) {
+      details += `\n{bold}{red-fg}Error:{/red-fg}{/bold}\n${task.error}\n`;
+    }
+
+    return details;
   }
 
   private confirmDelete(task: Task) {
@@ -411,6 +447,71 @@ ${task.error ? `{bold}{red-fg}Error:{/red-fg}{/bold}\n${task.error}` : ''}
     const tasks = this.taskStore.getTasks();
     const items = tasks.map((task) => this.renderTaskItem(task));
     this.list.setItems(items);
+    
+    // 태스크 수 및 상태 통계 표시
+    const stats = this.calculateTaskStats(tasks);
+    this.box.setLabel(` Tasks (${stats.total}) - ✔${stats.completed} ◐${stats.inProgress} ○${stats.pending} `);
+    
     this.parent.render();
+  }
+
+  private createProgressBar(progress: number): string {
+    const width = 10;
+    const filled = Math.floor((progress / 100) * width);
+    const empty = width - filled;
+    const bar = '█'.repeat(filled) + '░'.repeat(empty);
+    return `{cyan-fg}[${bar}] ${progress}%{/}`;
+  }
+
+  private createDetailedProgressBar(progress: number): string {
+    const width = 20;
+    const filled = Math.floor((progress / 100) * width);
+    const empty = width - filled;
+    const bar = '█'.repeat(filled) + '░'.repeat(empty);
+    return `[${bar}] ${progress}%`;
+  }
+
+  private getPriorityDisplay(priority: string): string {
+    const displays: { [key: string]: string } = {
+      high: '{red-fg}↑ High{/}',
+      medium: '{yellow-fg}→ Medium{/}',
+      low: '{gray-fg}↓ Low{/}',
+      normal: 'Normal',
+    };
+    return displays[priority] || priority;
+  }
+
+  private calculateDuration(startTime: string | Date, endTime?: string | Date): string {
+    const start = new Date(startTime).getTime();
+    const end = endTime ? new Date(endTime).getTime() : Date.now();
+    const duration = end - start;
+    
+    const hours = Math.floor(duration / (1000 * 60 * 60));
+    const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((duration % (1000 * 60)) / 1000);
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes}m ${seconds}s`;
+    } else if (minutes > 0) {
+      return `${minutes}m ${seconds}s`;
+    } else {
+      return `${seconds}s`;
+    }
+  }
+
+  private calculateTaskStats(tasks: Task[]): {
+    total: number;
+    completed: number;
+    inProgress: number;
+    pending: number;
+    failed: number;
+  } {
+    return {
+      total: tasks.length,
+      completed: tasks.filter(t => t.status === 'completed').length,
+      inProgress: tasks.filter(t => t.status === 'in_progress').length,
+      pending: tasks.filter(t => t.status === 'pending').length,
+      failed: tasks.filter(t => t.status === 'failed').length,
+    };
   }
 }

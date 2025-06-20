@@ -7,7 +7,7 @@ export interface Task {
   id: string;
   title: string;
   description: string;
-  status: 'pending' | 'in_progress' | 'completed' | 'failed' | 'cancelled';
+  status: 'pending' | 'in_progress' | 'completed' | 'failed' | 'cancelled' | 'paused';
   priority: 'high' | 'medium' | 'low';
   progress?: number; // 진행률 (0-100)
   startedAt?: string; // 시작 시간
@@ -17,6 +17,7 @@ export interface Task {
   completedAt?: string;
   contextIds?: string[]; // 관련 컨텍스트 ID들
   metadata?: Record<string, unknown>; // 추가 메타데이터
+  estimatedTime?: string; // 예상 소요 시간
 }
 
 export interface Request {
@@ -126,6 +127,7 @@ export interface LogEntry {
   source: string;
   message: string;
   details?: unknown;
+  category?: string; // 로그 카테고리 (예: 'MCP', 'Task', 'Claude')
 }
 
 // 메트릭 타입

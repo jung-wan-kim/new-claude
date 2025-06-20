@@ -9,9 +9,11 @@ export interface StatusInfo {
     progress?: number;
   };
   mcpServers: {
-    taskManager?: { connected: boolean };
-    context7?: { connected: boolean };
+    taskManager?: { connected: boolean; status?: string };
+    context7?: { connected: boolean; status?: string };
   };
+  inputMode?: boolean;
+  commandMode?: boolean;
 }
 
 export class EnhancedStatusBar {
@@ -86,24 +88,34 @@ export class EnhancedStatusBar {
   }
 
   updateStatus(status: StatusInfo) {
-    // 왼쪽: 모드 정보
-    this.leftSection.setContent(` ${status.mode} | ${status.focusedPanel} `);
+    // 왼쪽: 모드와 포커스 정보
+    let modeDisplay = status.mode;
+    if (status.inputMode) {
+      modeDisplay = '{yellow-fg}INSERT{/}';
+    } else if (status.commandMode) {
+      modeDisplay = '{cyan-fg}COMMAND{/}';
+    } else {
+      modeDisplay = '{green-fg}NORMAL{/}';
+    }
+    
+    const focusIcon = this.getFocusIcon(status.focusedPanel);
+    this.leftSection.setContent(` ${modeDisplay} | ${focusIcon} ${status.focusedPanel} `);
 
     // 중앙: 작업 정보
     if (status.activeTask) {
       this.startSpinner();
-      const progress = status.activeTask.progress ? ` (${status.activeTask.progress}%)` : '';
+      const progress = status.activeTask.progress ? ` ${this.getProgressBar(status.activeTask.progress)}` : '';
       this.centerSection.setContent(
         `${this.spinner[this.spinnerIndex]} ${status.activeTask.title}${progress}`
       );
     } else {
       this.stopSpinner();
-      this.centerSection.setContent('Ready');
+      this.centerSection.setContent('{dim-fg}Ready - Press ? for help{/}');
     }
 
     // 오른쪽: 연결 상태
     const mcpStatus = this.getMCPStatusIcons(status.mcpServers);
-    this.rightSection.setContent(` MCP: ${mcpStatus} | ${this.getTime()} `);
+    this.rightSection.setContent(` ${mcpStatus} | ${this.getTime()} `);
 
     this.parent.render();
   }
@@ -111,22 +123,26 @@ export class EnhancedStatusBar {
   private getMCPStatusIcons(servers: any): string {
     let icons = '';
 
+    // TaskManager status
     if (servers.taskManager) {
-      const icon = servers.taskManager.connected ? '✓' : '✗';
+      const icon = servers.taskManager.connected ? '●' : '○';
       const color = servers.taskManager.connected ? '{green-fg}' : '{red-fg}';
-      icons += `${color}T${icon}{/}`;
+      const status = servers.taskManager.status || (servers.taskManager.connected ? 'OK' : 'OFF');
+      icons += `${color}TM:${icon}{/}`;
     } else {
-      icons += '{gray-fg}T-{/}';
+      icons += '{gray-fg}TM:○{/}';
     }
 
     icons += ' ';
 
+    // Context7 status
     if (servers.context7) {
-      const icon = servers.context7.connected ? '✓' : '✗';
+      const icon = servers.context7.connected ? '●' : '○';
       const color = servers.context7.connected ? '{green-fg}' : '{red-fg}';
-      icons += `${color}C${icon}{/}`;
+      const status = servers.context7.status || (servers.context7.connected ? 'OK' : 'OFF');
+      icons += `${color}C7:${icon}{/}`;
     } else {
-      icons += '{gray-fg}C-{/}';
+      icons += '{gray-fg}C7:○{/}';
     }
 
     return icons;
@@ -171,6 +187,24 @@ export class EnhancedStatusBar {
       minute: '2-digit',
       second: '2-digit',
     });
+  }
+
+  private getFocusIcon(panel: string): string {
+    const icons: { [key: string]: string } = {
+      'Tasks': '📋',
+      'Work': '💻',
+      'Context': '📚',
+      'Logs': '📜',
+    };
+    return icons[panel] || '📄';
+  }
+
+  private getProgressBar(progress: number): string {
+    const width = 10;
+    const filled = Math.floor((progress / 100) * width);
+    const empty = width - filled;
+    const bar = '█'.repeat(filled) + '░'.repeat(empty);
+    return `[${bar}] ${progress}%`;
   }
 
   showMessage(message: string, duration: number = 3000) {
