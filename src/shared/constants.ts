@@ -12,25 +12,25 @@ export const IPC_CHANNELS = {
   MCP_TASKMANAGER_DONE: 'mcp:taskmanager:markDone',
   MCP_CONTEXT7_SEARCH: 'mcp:context7:search',
   MCP_CONTEXT7_CREATE: 'mcp:context7:create',
-  
+
   // Claude Code 관련
   CLAUDE_EXECUTE: 'claude:execute',
   CLAUDE_STREAM: 'claude:stream',
   CLAUDE_STREAM_DATA: 'claude:stream:data',
   CLAUDE_KILL: 'claude:kill',
-  
+
   // Terminal 관련
   TERMINAL_CREATE: 'terminal:create',
   TERMINAL_INPUT: 'terminal:input',
   TERMINAL_OUTPUT: 'terminal:output',
   TERMINAL_RESIZE: 'terminal:resize',
   TERMINAL_KILL: 'terminal:kill',
-  
+
   // 앱 상태 관련
   APP_READY: 'app:ready',
   APP_ERROR: 'app:error',
   APP_UPDATE: 'app:update',
-  
+
   // 설정 관련
   SETTINGS_GET: 'settings:get',
   SETTINGS_SET: 'settings:set',
@@ -131,16 +131,16 @@ export const ERROR_CODES = {
   MCP_CONNECTION_FAILED: 'MCP_001',
   MCP_TIMEOUT: 'MCP_002',
   MCP_INVALID_RESPONSE: 'MCP_003',
-  
+
   // Claude Code 관련
   CLAUDE_NOT_FOUND: 'CLAUDE_001',
   CLAUDE_EXECUTION_FAILED: 'CLAUDE_002',
   CLAUDE_TIMEOUT: 'CLAUDE_003',
-  
+
   // Terminal 관련
   TERMINAL_CREATION_FAILED: 'TERM_001',
   TERMINAL_NOT_FOUND: 'TERM_002',
-  
+
   // 일반 에러
   UNKNOWN_ERROR: 'ERR_001',
   INVALID_INPUT: 'ERR_002',

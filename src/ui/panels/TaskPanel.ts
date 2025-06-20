@@ -187,11 +187,9 @@ export class TaskPanel {
 
   render() {
     const tasks = this.taskStore.getTasks();
-    const items = tasks.map(task => {
-      const status = task.status === 'completed' ? '✓' : 
-                    task.status === 'in_progress' ? '⚡' : '○';
-      const priority = task.priority === 'high' ? '!' :
-                      task.priority === 'medium' ? '-' : ' ';
+    const items = tasks.map((task) => {
+      const status = task.status === 'completed' ? '✓' : task.status === 'in_progress' ? '⚡' : '○';
+      const priority = task.priority === 'high' ? '!' : task.priority === 'medium' ? '-' : ' ';
       return `${status} ${priority} ${task.title}`;
     });
 

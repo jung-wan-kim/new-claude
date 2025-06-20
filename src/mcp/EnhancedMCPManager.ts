@@ -65,9 +65,9 @@ export class EnhancedMCPManager extends EventEmitter implements MCPManager {
         maxRetries: 3,
         initialDelay: 1000,
         maxDelay: 10000,
-        backoffMultiplier: 2
+        backoffMultiplier: 2,
       },
-      healthCheckInterval: 30000
+      healthCheckInterval: 30000,
     });
 
     // Context7 설정
@@ -79,9 +79,9 @@ export class EnhancedMCPManager extends EventEmitter implements MCPManager {
         maxRetries: 3,
         initialDelay: 1000,
         maxDelay: 10000,
-        backoffMultiplier: 2
+        backoffMultiplier: 2,
       },
-      healthCheckInterval: 30000
+      healthCheckInterval: 30000,
     });
   }
 
@@ -90,7 +90,7 @@ export class EnhancedMCPManager extends EventEmitter implements MCPManager {
       config,
       client: config.client,
       status: 'disconnected',
-      errorCount: 0
+      errorCount: 0,
     });
   }
 
@@ -105,7 +105,7 @@ export class EnhancedMCPManager extends EventEmitter implements MCPManager {
   private async _initialize(): Promise<InitializationResult> {
     const results: InitializationResult = {
       success: true,
-      servers: {}
+      servers: {},
     };
 
     console.log('🚀 Initializing MCP servers...');
@@ -116,12 +116,12 @@ export class EnhancedMCPManager extends EventEmitter implements MCPManager {
         results.servers[name] = { success: true };
         console.log(`✅ ${name} initialized successfully`);
       } catch (error: any) {
-        results.servers[name] = { 
-          success: false, 
-          error: error.message 
+        results.servers[name] = {
+          success: false,
+          error: error.message,
         };
         console.error(`❌ ${name} initialization failed:`, error.message);
-        
+
         if (state.config.required) {
           results.success = false;
         }
@@ -132,25 +132,18 @@ export class EnhancedMCPManager extends EventEmitter implements MCPManager {
     return results;
   }
 
-  private async initializeServer(
-    name: string, 
-    state: MCPServerState
-  ): Promise<void> {
+  private async initializeServer(name: string, state: MCPServerState): Promise<void> {
     state.status = 'connecting';
-    
+
     // 타임아웃 설정
-    const timeout = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Initialization timeout')), 
-      this.initTimeout)
+    const timeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Initialization timeout')), this.initTimeout)
     );
 
     try {
       await Promise.race([
-        this.retryWithPolicy(
-          () => state.client.initialize(),
-          state.config.retryPolicy
-        ),
-        timeout
+        this.retryWithPolicy(() => state.client.initialize(), state.config.retryPolicy),
+        timeout,
       ]);
 
       state.status = 'connected';
@@ -168,10 +161,7 @@ export class EnhancedMCPManager extends EventEmitter implements MCPManager {
     }
   }
 
-  private async retryWithPolicy(
-    operation: () => Promise<any>,
-    policy?: RetryPolicy
-  ): Promise<any> {
+  private async retryWithPolicy(operation: () => Promise<any>, policy?: RetryPolicy): Promise<any> {
     if (!policy) return operation();
 
     let lastError: Error;
@@ -182,10 +172,10 @@ export class EnhancedMCPManager extends EventEmitter implements MCPManager {
         return await operation();
       } catch (error: any) {
         lastError = error;
-        
+
         if (i < policy.maxRetries) {
           console.log(`Retry ${i + 1}/${policy.maxRetries} after ${delay}ms...`);
-          await new Promise(resolve => setTimeout(resolve, delay));
+          await new Promise((resolve) => setTimeout(resolve, delay));
           delay = Math.min(delay * policy.backoffMultiplier, policy.maxDelay);
         }
       }
@@ -198,9 +188,9 @@ export class EnhancedMCPManager extends EventEmitter implements MCPManager {
     const timer = setInterval(async () => {
       try {
         // 간단한 ping 형태의 헬스체크
-        await state.client.getStatus?.() || await state.client.list_requests?.();
+        (await state.client.getStatus?.()) || (await state.client.list_requests?.());
         state.lastHealthCheck = new Date();
-        
+
         if (state.status !== 'connected') {
           state.status = 'connected';
           state.errorCount = 0;
@@ -212,12 +202,12 @@ export class EnhancedMCPManager extends EventEmitter implements MCPManager {
           state.status = 'disconnected';
           this.emit('serverDisconnected', name, error);
           console.warn(`⚠️  ${name} disconnected, attempting reconnection...`);
-          
+
           // 자동 재연결 시도
           this.reconnectServer(name).catch(console.error);
         }
       }
-    }, state.config.healthCheckInterval!);
+    }, state.config.healthCheckInterval);
 
     this.healthCheckTimers.set(name, timer);
   }
@@ -237,7 +227,7 @@ export class EnhancedMCPManager extends EventEmitter implements MCPManager {
 
   async disconnect(): Promise<void> {
     console.log('Disconnecting MCP servers...');
-    
+
     // 헬스체크 타이머 정리
     for (const [, timer] of this.healthCheckTimers) {
       clearInterval(timer);
@@ -249,7 +239,8 @@ export class EnhancedMCPManager extends EventEmitter implements MCPManager {
     for (const [name, state] of this.servers) {
       if (state.client.disconnect) {
         disconnectPromises.push(
-          state.client.disconnect()
+          state.client
+            .disconnect()
             .then(() => {
               state.status = 'disconnected';
               console.log(`✅ ${name} disconnected`);
@@ -284,13 +275,13 @@ export class EnhancedMCPManager extends EventEmitter implements MCPManager {
   } {
     const taskManagerState = this.servers.get('taskManager');
     const context7State = this.servers.get('context7');
-    
+
     return {
       initialized: this._initialized,
       services: {
         taskManager: taskManagerState?.status === 'connected',
-        context7: context7State?.status === 'connected'
-      }
+        context7: context7State?.status === 'connected',
+      },
     };
   }
 
@@ -306,19 +297,19 @@ export class EnhancedMCPManager extends EventEmitter implements MCPManager {
     };
   } {
     const servers: any = {};
-    
+
     for (const [name, state] of this.servers) {
       servers[name] = {
         status: state.status,
         lastConnected: state.lastConnected,
         lastHealthCheck: state.lastHealthCheck,
-        errorCount: state.errorCount
+        errorCount: state.errorCount,
       };
     }
 
     return {
       initialized: this._initialized,
-      servers
+      servers,
     };
   }
 
@@ -327,11 +318,11 @@ export class EnhancedMCPManager extends EventEmitter implements MCPManager {
     if (!state) {
       throw new Error(`Unknown server: ${name}`);
     }
-    
+
     if (state.status !== 'connected') {
       console.warn(`Server ${name} is not connected (status: ${state.status})`);
     }
-    
+
     return state.client;
   }
 }

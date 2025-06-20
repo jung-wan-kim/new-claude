@@ -219,9 +219,8 @@ ${context.content}`,
 
   render() {
     const contexts = this.contextStore.getContexts();
-    const items = contexts.map(ctx => {
-      const icon = ctx.type === 'code' ? '📄' :
-                   ctx.type === 'note' ? '📝' : '📋';
+    const items = contexts.map((ctx) => {
+      const icon = ctx.type === 'code' ? '📄' : ctx.type === 'note' ? '📝' : '📋';
       return `${icon} ${ctx.title}`;
     });
 

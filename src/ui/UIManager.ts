@@ -28,7 +28,7 @@ export class UIManager {
   private notificationManager: NotificationManager;
   private taskExecutor: TaskExecutor;
   private useEnhancedUI: boolean = true;
-  
+
   constructor(
     screen: blessed.Widgets.Screen,
     private taskStore: TaskStore,
@@ -40,13 +40,10 @@ export class UIManager {
     this.screen = screen;
     this.themeManager = new ThemeManager();
     this.notificationManager = new NotificationManager();
-    this.taskExecutor = new TaskExecutor(
-      taskStore,
-      mcpManager,
-      claudeBridge,
-      logStore,
-      { autoApprove: true, maxConcurrent: 3 }
-    );
+    this.taskExecutor = new TaskExecutor(taskStore, mcpManager, claudeBridge, logStore, {
+      autoApprove: true,
+      maxConcurrent: 3,
+    });
     this.setupLayout();
     this.setupKeyBindings();
     this.setupEventListeners();
@@ -67,7 +64,7 @@ export class UIManager {
         this.taskStore,
         this.themeManager
       );
-      
+
       // 다른 패널들도 screen에 직접 추가
       this.workPanel = new WorkPanel({
         parent: this.screen,
@@ -104,7 +101,7 @@ export class UIManager {
         taskStore: this.taskStore,
         mcpManager: this.mcpManager,
       });
-      
+
       this.workPanel = new WorkPanel({
         parent: container,
         left: '25%',
@@ -134,10 +131,7 @@ export class UIManager {
 
     // StatusBar
     if (this.useEnhancedUI) {
-      this.enhancedStatusBar = new EnhancedStatusBar(
-        this.screen,
-        this.themeManager
-      );
+      this.enhancedStatusBar = new EnhancedStatusBar(this.screen, this.themeManager);
     } else {
       this.statusBar = new StatusBar({
         parent: this.screen,
@@ -154,15 +148,15 @@ export class UIManager {
     this.screen.key(['C-1'], () => {
       this.focusPanel('tasks');
     });
-    
+
     this.screen.key(['C-2'], () => {
       this.focusPanel('work');
     });
-    
+
     this.screen.key(['C-3'], () => {
       this.focusPanel('context');
     });
-    
+
     this.screen.key(['C-4'], () => {
       this.focusPanel('logs');
     });
@@ -266,9 +260,9 @@ Press any key to close...`,
         const task = await this.taskExecutor.createAndExecuteTask({
           title: data.title,
           description: data.description,
-          priority: data.priority || 'medium'
+          priority: data.priority || 'medium',
         });
-        
+
         this.notificationManager.showNotification(
           this.screen,
           `Task created: ${task.title}`,
@@ -303,11 +297,7 @@ Press any key to close...`,
 
     this.screen.on('task:delete', (task: any) => {
       this.taskStore.removeTask(task.id);
-      this.notificationManager.showNotification(
-        this.screen,
-        'Task deleted',
-        'info'
-      );
+      this.notificationManager.showNotification(this.screen, 'Task deleted', 'info');
     });
 
     // TaskExecutor 이벤트
@@ -356,25 +346,27 @@ Press any key to close...`,
         this.enhancedStatusBar.updateStatus({
           mode: 'Normal',
           focusedPanel: 'Tasks',
-          activeTask: activeTask ? {
-            title: activeTask.title,
-            progress: activeTask.progress
-          } : undefined,
+          activeTask: activeTask
+            ? {
+                title: activeTask.title,
+                progress: activeTask.progress,
+              }
+            : undefined,
           mcpServers: {
             taskManager: { connected: this.mcpManager.getStatus().services.taskManager },
-            context7: { connected: this.mcpManager.getStatus().services.context7 }
-          }
+            context7: { connected: this.mcpManager.getStatus().services.context7 },
+          },
         });
       }
     } else {
       if (this.taskPanel) this.taskPanel.render();
       if (this.statusBar) this.statusBar.render();
     }
-    
+
     this.workPanel.render();
     this.contextPanel.render();
     this.logPanel.render();
-    
+
     // 화면 렌더링
     this.screen.render();
   }

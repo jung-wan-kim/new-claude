@@ -27,8 +27,8 @@ export class EnhancedTaskPanel {
       vi: true,
       style: {
         border: { fg: 'cyan' },
-        label: { fg: 'white', bold: true }
-      }
+        label: { fg: 'white', bold: true },
+      },
     });
 
     this.list = blessed.list({
@@ -42,19 +42,19 @@ export class EnhancedTaskPanel {
       mouse: true,
       scrollbar: {
         ch: '┃',
-        style: { fg: 'cyan' }
+        style: { fg: 'cyan' },
       },
       style: {
         selected: {
           bg: 'blue',
           fg: 'white',
-          bold: true
+          bold: true,
         },
         item: {
-          hover: { bg: 'gray' }
-        }
+          hover: { bg: 'gray' },
+        },
       },
-      tags: true
+      tags: true,
     });
 
     this.setupEventHandlers();
@@ -117,21 +117,20 @@ export class EnhancedTaskPanel {
     this.taskStore.on('task:removed', () => this.render());
   }
 
-
   private renderTaskItem(task: Task): string {
     const statusIcon = this.getStatusIcon(task.status);
     const statusColor = this.getStatusColor(task.status);
-    
+
     let line = `{${statusColor}-fg}${statusIcon}{/} ${task.title}`;
-    
+
     if (task.status === 'in_progress' && task.progress !== undefined) {
       line += ` {cyan-fg}[${task.progress}%]{/}`;
     }
-    
+
     if (task.priority === 'high') {
       line = `{red-fg}!{/} ${line}`;
     }
-    
+
     return line;
   }
 
@@ -141,7 +140,7 @@ export class EnhancedTaskPanel {
       in_progress: '◐',
       completed: '✓',
       failed: '✗',
-      paused: '⏸'
+      paused: '⏸',
     };
     return icons[status] || '?';
   }
@@ -152,7 +151,7 @@ export class EnhancedTaskPanel {
       in_progress: 'blue',
       completed: 'green',
       failed: 'red',
-      paused: 'gray'
+      paused: 'gray',
     };
     return colors[status] || 'white';
   }
@@ -170,8 +169,8 @@ export class EnhancedTaskPanel {
       label: ' New Task ',
       style: {
         border: { fg: 'yellow' },
-        label: { fg: 'yellow', bold: true }
-      }
+        label: { fg: 'yellow', bold: true },
+      },
     });
 
     blessed.text({
@@ -179,7 +178,7 @@ export class EnhancedTaskPanel {
       content: 'Title:',
       top: 1,
       left: 2,
-      style: { fg: 'white' }
+      style: { fg: 'white' },
     });
 
     const titleInput = blessed.textbox({
@@ -192,9 +191,9 @@ export class EnhancedTaskPanel {
       border: { type: 'line' },
       style: {
         border: { fg: 'white' },
-        focus: { border: { fg: 'yellow' } }
+        focus: { border: { fg: 'yellow' } },
       },
-      inputOnFocus: true
+      inputOnFocus: true,
     });
 
     blessed.text({
@@ -202,7 +201,7 @@ export class EnhancedTaskPanel {
       content: 'Description:',
       top: 6,
       left: 2,
-      style: { fg: 'white' }
+      style: { fg: 'white' },
     });
 
     const descInput = blessed.textarea({
@@ -215,9 +214,9 @@ export class EnhancedTaskPanel {
       border: { type: 'line' },
       style: {
         border: { fg: 'white' },
-        focus: { border: { fg: 'yellow' } }
+        focus: { border: { fg: 'yellow' } },
       },
-      inputOnFocus: true
+      inputOnFocus: true,
     });
 
     const submitBtn = blessed.button({
@@ -231,8 +230,8 @@ export class EnhancedTaskPanel {
         bg: 'blue',
         fg: 'white',
         hover: { bg: 'lightblue' },
-        focus: { bg: 'blue', bold: true }
-      }
+        focus: { bg: 'blue', bold: true },
+      },
     });
 
     const cancelBtn = blessed.button({
@@ -246,18 +245,18 @@ export class EnhancedTaskPanel {
         bg: 'red',
         fg: 'white',
         hover: { bg: 'lightred' },
-        focus: { bg: 'red', bold: true }
-      }
+        focus: { bg: 'red', bold: true },
+      },
     });
 
     submitBtn.on('press', () => {
       const title = titleInput.getValue().trim();
       const description = descInput.getValue().trim();
-      
+
       if (title) {
         this.parent.emit('task:create', {
           title,
-          description
+          description,
         });
         form.destroy();
         this.parent.render();
@@ -296,13 +295,13 @@ export class EnhancedTaskPanel {
       height: 20,
       style: {
         border: { fg: 'cyan' },
-        label: { fg: 'cyan', bold: true }
+        label: { fg: 'cyan', bold: true },
       },
       content: this.formatTaskDetails(task),
       scrollable: true,
       keys: true,
       vi: true,
-      tags: true
+      tags: true,
     });
 
     this.detailsBox.key(['escape', 'q'], () => {
@@ -350,8 +349,8 @@ ${task.error ? `{bold}{red-fg}Error:{/red-fg}{/bold}\n${task.error}` : ''}
       vi: true,
       style: {
         border: { fg: 'red' },
-        label: { fg: 'red', bold: true }
-      }
+        label: { fg: 'red', bold: true },
+      },
     });
 
     confirm.ask(`Delete task "${task.title}"? (y/n)`, (_err, value) => {
@@ -373,7 +372,7 @@ ${task.error ? `{bold}{red-fg}Error:{/red-fg}{/bold}\n${task.error}` : ''}
       label: ' Search Tasks ',
       tags: true,
       keys: true,
-      vi: true
+      vi: true,
     });
 
     prompt.input('Enter search term:', '', (_err, value) => {
@@ -386,12 +385,13 @@ ${task.error ? `{bold}{red-fg}Error:{/red-fg}{/bold}\n${task.error}` : ''}
 
   private filterTasks(searchTerm: string) {
     const tasks = this.taskStore.getTasks();
-    const filtered = tasks.filter(task => 
-      task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (task.description && task.description.toLowerCase().includes(searchTerm.toLowerCase()))
+    const filtered = tasks.filter(
+      (task) =>
+        task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (task.description && task.description.toLowerCase().includes(searchTerm.toLowerCase()))
     );
-    
-    const items = filtered.map(task => this.renderTaskItem(task));
+
+    const items = filtered.map((task) => this.renderTaskItem(task));
     this.list.setItems(items);
     this.parent.render();
   }
@@ -409,7 +409,7 @@ ${task.error ? `{bold}{red-fg}Error:{/red-fg}{/bold}\n${task.error}` : ''}
 
   render() {
     const tasks = this.taskStore.getTasks();
-    const items = tasks.map(task => this.renderTaskItem(task));
+    const items = tasks.map((task) => this.renderTaskItem(task));
     this.list.setItems(items);
     this.parent.render();
   }

@@ -23,7 +23,7 @@ program
       configPath: options.config,
       enableMCP: options.mcp,
     });
-    
+
     try {
       await app.start();
     } catch (error) {

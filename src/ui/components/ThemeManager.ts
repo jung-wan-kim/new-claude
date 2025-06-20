@@ -43,15 +43,15 @@ export class ThemeManager {
         error: '#f44747',
         info: '#9cdcfe',
         border: '#3e3e3e',
-        selection: '#264f78'
+        selection: '#264f78',
       },
       blessed: {
         bg: 'black',
         fg: 'white',
         border: { fg: 'cyan' },
         selected: { bg: 'blue', fg: 'white' },
-        focus: { border: { fg: 'yellow' } }
-      }
+        focus: { border: { fg: 'yellow' } },
+      },
     });
 
     this.themes.set('light', {
@@ -65,15 +65,15 @@ export class ThemeManager {
         error: '#cc0000',
         info: '#0099cc',
         border: '#cccccc',
-        selection: '#add8e6'
+        selection: '#add8e6',
       },
       blessed: {
         bg: 'white',
         fg: 'black',
         border: { fg: 'blue' },
         selected: { bg: 'cyan', fg: 'black' },
-        focus: { border: { fg: 'blue' } }
-      }
+        focus: { border: { fg: 'blue' } },
+      },
     });
 
     this.themes.set('high-contrast', {
@@ -87,15 +87,15 @@ export class ThemeManager {
         error: '#ff0000',
         info: '#ffffff',
         border: '#ffffff',
-        selection: '#ffff00'
+        selection: '#ffff00',
       },
       blessed: {
         bg: 'black',
         fg: 'white',
         border: { fg: 'white' },
         selected: { bg: 'yellow', fg: 'black' },
-        focus: { border: { fg: 'yellow' } }
-      }
+        focus: { border: { fg: 'yellow' } },
+      },
     });
   }
 
@@ -109,11 +109,11 @@ export class ThemeManager {
 
   applyTheme(element: blessed.Widgets.BlessedElement) {
     const theme = this.getCurrentTheme();
-    
+
     if (element.style) {
       Object.assign(element.style, theme.blessed);
     }
-    
+
     // 재귀적으로 자식 요소에도 적용
     if ('children' in element) {
       (element as any).children.forEach((child: any) => {
@@ -134,20 +134,20 @@ export class ThemeManager {
   }
 
   private notifyListeners() {
-    this.listeners.forEach(listener => listener(this.currentTheme));
+    this.listeners.forEach((listener) => listener(this.currentTheme));
   }
 
   getStatusColor(status: string): string {
     const theme = this.getCurrentTheme();
     const colorMap: { [key: string]: keyof typeof theme.colors } = {
-      'pending': 'warning',
-      'in_progress': 'info',
-      'completed': 'success',
-      'failed': 'error',
-      'connected': 'success',
-      'disconnected': 'error'
+      pending: 'warning',
+      in_progress: 'info',
+      completed: 'success',
+      failed: 'error',
+      connected: 'success',
+      disconnected: 'error',
     };
-    
+
     const colorKey = colorMap[status] || 'foreground';
     return theme.colors[colorKey];
   }

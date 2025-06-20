@@ -32,7 +32,7 @@ export class NotificationManager {
     const notification = blessed.box({
       parent,
       content: ` ${icon} ${message} `,
-      top: 2 + (this.notifications.size * 4),
+      top: 2 + this.notifications.size * 4,
       right: 2,
       width: 'shrink',
       height: 3,
@@ -41,12 +41,12 @@ export class NotificationManager {
       style: colors,
       border: { type: 'line' },
       shadow: true,
-      tags: true
+      tags: true,
     });
 
     const notificationObj: Notification = {
       id,
-      element: notification
+      element: notification,
     };
 
     if (duration > 0) {
@@ -89,7 +89,7 @@ export class NotificationManager {
       success: { bg: 'green', fg: 'white' },
       warning: { bg: 'yellow', fg: 'black' },
       error: { bg: 'red', fg: 'white' },
-      info: { bg: 'blue', fg: 'white' }
+      info: { bg: 'blue', fg: 'white' },
     };
     return colorMap[type];
   }
@@ -99,7 +99,7 @@ export class NotificationManager {
       success: '✓',
       warning: '⚠',
       error: '✗',
-      info: 'ℹ'
+      info: 'ℹ',
     };
     return iconMap[type];
   }
@@ -107,13 +107,13 @@ export class NotificationManager {
   private animateIn(element: blessed.Widgets.BoxElement) {
     const originalRight = element.right || 2;
     element.right = -50;
-    
+
     let position = -50;
     const interval = setInterval(() => {
       position += 10;
       element.right = Math.min(position, originalRight as number);
       element.screen.render();
-      
+
       if (position >= (originalRight as number)) {
         clearInterval(interval);
       }
@@ -124,7 +124,7 @@ export class NotificationManager {
     let opacity = 100;
     const interval = setInterval(() => {
       opacity -= 10;
-      
+
       if (opacity <= 0) {
         clearInterval(interval);
         callback();
@@ -138,8 +138,8 @@ export class NotificationManager {
 
   private repositionNotifications() {
     let index = 0;
-    this.notifications.forEach(notification => {
-      notification.element.top = 2 + (index * 4);
+    this.notifications.forEach((notification) => {
+      notification.element.top = 2 + index * 4;
       index++;
     });
   }

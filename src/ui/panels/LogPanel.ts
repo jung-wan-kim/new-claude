@@ -129,26 +129,30 @@ export class LogPanel {
   render() {
     const logs = this.logStore.getFilteredLogs();
     const content: string[] = [];
-    
-    logs.forEach(log => {
+
+    logs.forEach((log) => {
       const timestamp = new Date(log.timestamp).toLocaleTimeString();
-      const levelColor = {
-        debug: 'gray',
-        info: 'white',
-        warn: 'yellow',
-        error: 'red',
-      }[log.level] || 'white';
-      
-      const icon = {
-        debug: '🔍',
-        info: 'ℹ️',
-        warn: '⚠️',
-        error: '❌',
-      }[log.level] || '•';
-      
-      content.push(`{gray-fg}${timestamp}{/} ${icon} {${levelColor}-fg}[${log.level.toUpperCase()}]{/} ${log.message}`);
+      const levelColor =
+        {
+          debug: 'gray',
+          info: 'white',
+          warn: 'yellow',
+          error: 'red',
+        }[log.level] || 'white';
+
+      const icon =
+        {
+          debug: '🔍',
+          info: 'ℹ️',
+          warn: '⚠️',
+          error: '❌',
+        }[log.level] || '•';
+
+      content.push(
+        `{gray-fg}${timestamp}{/} ${icon} {${levelColor}-fg}[${log.level.toUpperCase()}]{/} ${log.message}`
+      );
     });
-    
+
     this.log.setContent(content.join('\n'));
   }
 

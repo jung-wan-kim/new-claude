@@ -43,14 +43,14 @@ export class StatusBar {
 
   render() {
     const tasks = this.taskStore.getTasks();
-    const completedTasks = tasks.filter(t => t.status === 'completed').length;
-    const activeTasks = tasks.filter(t => t.status === 'in_progress').length;
-    
+    const completedTasks = tasks.filter((t) => t.status === 'completed').length;
+    const activeTasks = tasks.filter((t) => t.status === 'in_progress').length;
+
     const mcpStatus = this.mcpManager.getStatus();
     const mcpIndicator = mcpStatus.initialized ? '{green-fg}●{/}' : '{red-fg}●{/}';
 
     const content = ` Tasks: ${completedTasks}/${tasks.length} | Active: ${activeTasks} | MCP: ${mcpIndicator} | ^C Quit | ? Help `;
-    
+
     this.box.setContent(content);
   }
 }

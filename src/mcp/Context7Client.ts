@@ -19,16 +19,19 @@ export class Context7Client {
     this.connected = true;
   }
 
-  async search(_query: string, _filters?: {
-    tags?: string[];
-    type?: string;
-    dateFrom?: string;
-    dateTo?: string;
-  }): Promise<ContextEntry[]> {
+  async search(
+    _query: string,
+    _filters?: {
+      tags?: string[];
+      type?: string;
+      dateFrom?: string;
+      dateTo?: string;
+    }
+  ): Promise<ContextEntry[]> {
     if (!this.connected) {
       throw new Error('Context7 client not initialized');
     }
-    
+
     // 모의 구현
     return [];
   }
@@ -43,7 +46,7 @@ export class Context7Client {
     if (!this.connected) {
       throw new Error('Context7 client not initialized');
     }
-    
+
     // 모의 구현
     return {
       id: `ctx-${Date.now()}`,
@@ -61,21 +64,24 @@ export class Context7Client {
     if (!this.connected) {
       throw new Error('Context7 client not initialized');
     }
-    
+
     // 모의 구현
     return null;
   }
 
-  async update(_id: string, _updates: {
-    title?: string;
-    content?: string;
-    tags?: string[];
-    metadata?: Record<string, any>;
-  }): Promise<ContextEntry> {
+  async update(
+    _id: string,
+    _updates: {
+      title?: string;
+      content?: string;
+      tags?: string[];
+      metadata?: Record<string, any>;
+    }
+  ): Promise<ContextEntry> {
     if (!this.connected) {
       throw new Error('Context7 client not initialized');
     }
-    
+
     // 모의 구현
     throw new Error('Not implemented in mock mode');
   }
@@ -84,7 +90,7 @@ export class Context7Client {
     if (!this.connected) {
       throw new Error('Context7 client not initialized');
     }
-    
+
     // 모의 구현
   }
 

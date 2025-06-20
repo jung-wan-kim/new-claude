@@ -127,7 +127,7 @@ export class WorkPanel {
   // Public method for external output
   appendOutput(data: string) {
     const lines = data.split('\n');
-    lines.forEach(line => {
+    lines.forEach((line) => {
       if (line.trim()) {
         this.addTerminalLine(line);
       }
@@ -135,7 +135,7 @@ export class WorkPanel {
   }
 
   private showPrompt() {
-    this.addTerminalLine('{cyan-fg}❯{/cyan-fg} Ready (press \'i\' to input command)');
+    this.addTerminalLine("{cyan-fg}❯{/cyan-fg} Ready (press 'i' to input command)");
   }
 
   private enterInputMode() {
@@ -157,7 +157,7 @@ export class WorkPanel {
   private async executeCommand(command: string) {
     this.addTerminalLine(`{cyan-fg}❯{/cyan-fg} ${command}`);
     this.addTerminalLine('{gray-fg}Executing...{/gray-fg}');
-    
+
     try {
       const result = await this.claudeBridge.execute(command);
       if (result.error) {
@@ -168,7 +168,7 @@ export class WorkPanel {
       this.addTerminalLine(`{red-fg}Error: ${error.message}{/red-fg}`);
       this.logStore.addLog('error', `Command failed: ${error.message}`);
     }
-    
+
     this.showPrompt();
   }
 

@@ -12,7 +12,7 @@ export class TaskStore extends EventEmitter {
 
   getActiveTask(): Task | null {
     if (!this.activeTaskId) return null;
-    return this.tasks.find(t => t.id === this.activeTaskId) || null;
+    return this.tasks.find((t) => t.id === this.activeTaskId) || null;
   }
 
   setActiveTask(taskId: string) {
@@ -41,7 +41,7 @@ export class TaskStore extends EventEmitter {
   }
 
   updateTaskStatus(taskId: string, status: Task['status']) {
-    const task = this.tasks.find(t => t.id === taskId);
+    const task = this.tasks.find((t) => t.id === taskId);
     if (task) {
       task.status = status;
       task.updatedAt = new Date().toISOString();
@@ -57,7 +57,7 @@ export class TaskStore extends EventEmitter {
   }
 
   deleteTask(taskId: string) {
-    const index = this.tasks.findIndex(t => t.id === taskId);
+    const index = this.tasks.findIndex((t) => t.id === taskId);
     if (index !== -1) {
       const task = this.tasks[index];
       this.tasks.splice(index, 1);
@@ -70,9 +70,9 @@ export class TaskStore extends EventEmitter {
 
   getStats() {
     const total = this.tasks.length;
-    const completed = this.tasks.filter(t => t.status === 'completed').length;
-    const inProgress = this.tasks.filter(t => t.status === 'in_progress').length;
-    const pending = this.tasks.filter(t => t.status === 'pending').length;
+    const completed = this.tasks.filter((t) => t.status === 'completed').length;
+    const inProgress = this.tasks.filter((t) => t.status === 'in_progress').length;
+    const pending = this.tasks.filter((t) => t.status === 'pending').length;
 
     return { total, completed, inProgress, pending };
   }

@@ -47,13 +47,13 @@ export function getFileExtension(filename: string): string {
 
 export function getFileType(filename: string): string {
   const ext = getFileExtension(filename);
-  
+
   for (const [type, extensions] of Object.entries(FILE_EXTENSIONS)) {
     if ((extensions as readonly string[]).includes(ext)) {
       return type;
     }
   }
-  
+
   return 'unknown';
 }
 
@@ -103,14 +103,17 @@ export function groupBy<T, K extends string | number>(
   array: T[],
   keyFn: (item: T) => K
 ): Record<K, T[]> {
-  return array.reduce((groups, item) => {
-    const key = keyFn(item);
-    if (!groups[key]) {
-      groups[key] = [];
-    }
-    groups[key].push(item);
-    return groups;
-  }, {} as Record<K, T[]>);
+  return array.reduce(
+    (groups, item) => {
+      const key = keyFn(item);
+      if (!groups[key]) {
+        groups[key] = [];
+      }
+      groups[key].push(item);
+      return groups;
+    },
+    {} as Record<K, T[]>
+  );
 }
 
 export function sortBy<T>(array: T[], keyFn: (item: T) => any): T[] {
@@ -129,7 +132,7 @@ export function debounce<T extends (...args: any[]) => any>(
   wait: number
 ): (...args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout;
-  
+
   return function (...args: Parameters<T>) {
     clearTimeout(timeout);
     timeout = setTimeout(() => func(...args), wait);
@@ -141,7 +144,7 @@ export function throttle<T extends (...args: any[]) => any>(
   limit: number
 ): (...args: Parameters<T>) => void {
   let inThrottle: boolean;
-  
+
   return function (...args: Parameters<T>) {
     if (!inThrottle) {
       func(...args);
@@ -160,22 +163,22 @@ export async function retry<T>(
   } = {}
 ): Promise<T> {
   const { maxAttempts = 3, delay = 1000, backoff = 2 } = options;
-  
+
   let lastError: Error;
-  
+
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
       return await fn();
     } catch (error) {
       lastError = error as Error;
-      
+
       if (attempt < maxAttempts) {
         const waitTime = delay * Math.pow(backoff, attempt - 1);
         await sleep(waitTime);
       }
     }
   }
-  
+
   throw lastError!;
 }
 
@@ -230,8 +233,6 @@ export function formatShortcut(shortcut: string): string {
       .replace(/shift/gi, '⇧')
       .replace(/\+/g, '');
   } else {
-    return shortcut
-      .replace(/cmd/gi, 'Ctrl')
-      .replace(/\+/g, '+');
+    return shortcut.replace(/cmd/gi, 'Ctrl').replace(/\+/g, '+');
   }
 }

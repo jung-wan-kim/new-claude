@@ -30,7 +30,7 @@ export class TaskManagerClient {
     if (!this.connected) {
       throw new Error('TaskManager client not initialized');
     }
-    
+
     // 모의 구현
     return { requestId: `req-${Date.now()}` };
   }
@@ -39,7 +39,7 @@ export class TaskManagerClient {
     if (!this.connected) {
       throw new Error('TaskManager client not initialized');
     }
-    
+
     // 모의 구현
     return null;
   }
@@ -48,7 +48,7 @@ export class TaskManagerClient {
     if (!this.connected) {
       throw new Error('TaskManager client not initialized');
     }
-    
+
     // 모의 구현
   }
 
@@ -56,7 +56,7 @@ export class TaskManagerClient {
     if (!this.connected) {
       throw new Error('TaskManager client not initialized');
     }
-    
+
     // 모의 구현
     return [];
   }

@@ -23,7 +23,7 @@ export class LogStore extends EventEmitter {
     };
 
     this.logs.push(log);
-    
+
     // 최대 로그 수 제한
     if (this.logs.length > this.maxLogs) {
       this.logs.shift();
@@ -37,7 +37,7 @@ export class LogStore extends EventEmitter {
   }
 
   getFilteredLogs(): LogEntry[] {
-    return this.logs.filter(log => {
+    return this.logs.filter((log) => {
       if (this.filter.level && log.level !== this.filter.level) {
         return false;
       }

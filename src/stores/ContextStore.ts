@@ -13,7 +13,7 @@ export class ContextStore extends EventEmitter {
 
   getActiveContext(): ContextEntry | null {
     if (!this.activeContextId) return null;
-    return this.contexts.find(c => c.id === this.activeContextId) || null;
+    return this.contexts.find((c) => c.id === this.activeContextId) || null;
   }
 
   setActiveContext(contextId: string) {
@@ -45,7 +45,7 @@ export class ContextStore extends EventEmitter {
   }
 
   updateContext(contextId: string, updates: Partial<ContextEntry>) {
-    const context = this.contexts.find(c => c.id === contextId);
+    const context = this.contexts.find((c) => c.id === contextId);
     if (context) {
       Object.assign(context, updates, {
         updatedAt: new Date().toISOString(),
@@ -55,7 +55,7 @@ export class ContextStore extends EventEmitter {
   }
 
   deleteContext(contextId: string) {
-    const index = this.contexts.findIndex(c => c.id === contextId);
+    const index = this.contexts.findIndex((c) => c.id === contextId);
     if (index !== -1) {
       const context = this.contexts[index];
       this.contexts.splice(index, 1);
@@ -69,12 +69,13 @@ export class ContextStore extends EventEmitter {
   async searchContexts(query: string) {
     this.searchQuery = query;
     // 간단한 로컬 검색
-    const filtered = this.contexts.filter(ctx => 
-      ctx.title.toLowerCase().includes(query.toLowerCase()) ||
-      ctx.content.toLowerCase().includes(query.toLowerCase()) ||
-      ctx.tags?.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
+    const filtered = this.contexts.filter(
+      (ctx) =>
+        ctx.title.toLowerCase().includes(query.toLowerCase()) ||
+        ctx.content.toLowerCase().includes(query.toLowerCase()) ||
+        ctx.tags?.some((tag) => tag.toLowerCase().includes(query.toLowerCase()))
     );
-    
+
     this.emit('search-completed', filtered);
     return filtered;
   }

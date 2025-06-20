@@ -35,8 +35,8 @@ export class EnhancedStatusBar {
       height: 1,
       style: {
         bg: 'blue',
-        fg: 'white'
-      }
+        fg: 'white',
+      },
     });
 
     // 왼쪽 섹션 - 모드와 포커스 정보
@@ -49,8 +49,8 @@ export class EnhancedStatusBar {
       content: ' Normal | Tasks ',
       style: {
         bg: 'blue',
-        fg: 'white'
-      }
+        fg: 'white',
+      },
     });
 
     // 중앙 섹션 - 작업 정보
@@ -63,8 +63,8 @@ export class EnhancedStatusBar {
       content: 'Ready',
       style: {
         bg: 'blue',
-        fg: 'white'
-      }
+        fg: 'white',
+      },
     });
 
     // 오른쪽 섹션 - 연결 상태와 시간
@@ -77,8 +77,8 @@ export class EnhancedStatusBar {
       content: `MCP: -- | ${this.getTime()} `,
       style: {
         bg: 'blue',
-        fg: 'white'
-      }
+        fg: 'white',
+      },
     });
 
     // 1초마다 시간 업데이트
@@ -87,16 +87,12 @@ export class EnhancedStatusBar {
 
   updateStatus(status: StatusInfo) {
     // 왼쪽: 모드 정보
-    this.leftSection.setContent(
-      ` ${status.mode} | ${status.focusedPanel} `
-    );
+    this.leftSection.setContent(` ${status.mode} | ${status.focusedPanel} `);
 
     // 중앙: 작업 정보
     if (status.activeTask) {
       this.startSpinner();
-      const progress = status.activeTask.progress 
-        ? ` (${status.activeTask.progress}%)` 
-        : '';
+      const progress = status.activeTask.progress ? ` (${status.activeTask.progress}%)` : '';
       this.centerSection.setContent(
         `${this.spinner[this.spinnerIndex]} ${status.activeTask.title}${progress}`
       );
@@ -107,16 +103,14 @@ export class EnhancedStatusBar {
 
     // 오른쪽: 연결 상태
     const mcpStatus = this.getMCPStatusIcons(status.mcpServers);
-    this.rightSection.setContent(
-      ` MCP: ${mcpStatus} | ${this.getTime()} `
-    );
+    this.rightSection.setContent(` MCP: ${mcpStatus} | ${this.getTime()} `);
 
     this.parent.render();
   }
 
   private getMCPStatusIcons(servers: any): string {
     let icons = '';
-    
+
     if (servers.taskManager) {
       const icon = servers.taskManager.connected ? '✓' : '✗';
       const color = servers.taskManager.connected ? '{green-fg}' : '{red-fg}';
@@ -124,9 +118,9 @@ export class EnhancedStatusBar {
     } else {
       icons += '{gray-fg}T-{/}';
     }
-    
+
     icons += ' ';
-    
+
     if (servers.context7) {
       const icon = servers.context7.connected ? '✓' : '✗';
       const color = servers.context7.connected ? '{green-fg}' : '{red-fg}';
@@ -134,13 +128,13 @@ export class EnhancedStatusBar {
     } else {
       icons += '{gray-fg}C-{/}';
     }
-    
+
     return icons;
   }
 
   private startSpinner() {
     if (this.spinnerTimer) return;
-    
+
     this.spinnerTimer = setInterval(() => {
       this.spinnerIndex = (this.spinnerIndex + 1) % this.spinner.length;
       this.updateSpinner();
@@ -171,11 +165,11 @@ export class EnhancedStatusBar {
   }
 
   private getTime(): string {
-    return new Date().toLocaleTimeString('en-US', { 
+    return new Date().toLocaleTimeString('en-US', {
       hour12: false,
       hour: '2-digit',
       minute: '2-digit',
-      second: '2-digit'
+      second: '2-digit',
     });
   }
 
@@ -183,7 +177,7 @@ export class EnhancedStatusBar {
     const originalContent = this.centerSection.getContent();
     this.centerSection.setContent(message);
     this.parent.render();
-    
+
     setTimeout(() => {
       this.centerSection.setContent(originalContent);
       this.parent.render();
@@ -191,18 +185,17 @@ export class EnhancedStatusBar {
   }
 
   setTheme(theme: string) {
-    const bgColor = theme === 'dark' ? 'blue' : 
-                     theme === 'light' ? 'cyan' : 'yellow';
+    const bgColor = theme === 'dark' ? 'blue' : theme === 'light' ? 'cyan' : 'yellow';
     const fgColor = theme === 'dark' ? 'white' : 'black';
-    
+
     this.box.style.bg = bgColor;
     this.box.style.fg = fgColor;
-    
-    [this.leftSection, this.centerSection, this.rightSection].forEach(section => {
+
+    [this.leftSection, this.centerSection, this.rightSection].forEach((section) => {
       section.style.bg = bgColor;
       section.style.fg = fgColor;
     });
-    
+
     this.parent.render();
   }
 }

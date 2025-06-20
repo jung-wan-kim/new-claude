@@ -28,7 +28,7 @@ export class ClaudeCodeController {
     this.taskStore = new TaskStore();
     this.contextStore = new ContextStore();
     this.logStore = new LogStore();
-    
+
     // MCP 이벤트 리스너 설정
     this.setupMCPEventListeners();
   }
@@ -49,15 +49,15 @@ export class ClaudeCodeController {
 
   async start() {
     console.log('🚀 Starting Claude Code Controller...\n');
-    
+
     // MCP 서버 연결 (선택적)
     if (this.options.enableMCP !== false) {
       await this.initializeMCP();
     }
-    
+
     // 화면 초기화
     this.initializeScreen();
-    
+
     // UI 매니저 생성
     this.uiManager = new UIManager(
       this.screen,
@@ -67,18 +67,18 @@ export class ClaudeCodeController {
       this.claudeBridge,
       this.mcpManager
     );
-    
+
     // UI 렌더링
     this.uiManager.render();
-    
+
     // 화면 렌더링
     this.screen.render();
-    
+
     // 샘플 Task 추가 (개발 모드)
     if (process.env.NODE_ENV === 'development') {
       this.addSampleTasks();
     }
-    
+
     this.logStore.info('Application started successfully', 'System');
   }
 
@@ -87,26 +87,26 @@ export class ClaudeCodeController {
       {
         title: 'Welcome to Claude Code Controller',
         description: 'Press Enter to execute this task',
-        priority: 'high' as const
+        priority: 'high' as const,
       },
       {
         title: 'Check MCP Connection',
         description: 'Verify MCP servers are connected',
-        priority: 'medium' as const
+        priority: 'medium' as const,
       },
       {
         title: 'Run Tests',
         description: 'Execute test suite',
-        priority: 'low' as const
-      }
+        priority: 'low' as const,
+      },
     ];
 
-    sampleTasks.forEach(task => {
+    sampleTasks.forEach((task) => {
       this.taskStore.addTask({
         ...task,
         status: 'pending',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       });
     });
   }
@@ -144,10 +144,10 @@ export class ClaudeCodeController {
   private async shutdown() {
     // 정리 작업
     await this.mcpManager.disconnect();
-    
+
     // 화면 종료
     this.screen.destroy();
-    
+
     console.log('\n👋 Goodbye!');
     process.exit(0);
   }

@@ -19,7 +19,7 @@ export class MCPManager {
     }
 
     console.log('Initializing MCP servers...');
-    
+
     try {
       // TaskManager 초기화 시도
       try {
@@ -29,7 +29,7 @@ export class MCPManager {
         console.warn('⚠ TaskManager initialization failed:', error);
         // TaskManager가 실패해도 계속 진행
       }
-      
+
       // Context7 초기화 시도
       try {
         await this.context7.initialize();
@@ -38,7 +38,7 @@ export class MCPManager {
         console.warn('⚠ Context7 initialization failed:', error);
         // Context7가 실패해도 계속 진행
       }
-      
+
       this.initialized = true;
       console.log('MCP Manager initialization completed');
     } catch (error) {
@@ -49,17 +49,17 @@ export class MCPManager {
 
   async disconnect(): Promise<void> {
     console.log('Disconnecting MCP servers...');
-    
+
     try {
       await Promise.all([
-        this.taskManager.disconnect().catch(err => 
-          console.error('Error disconnecting TaskManager:', err)
-        ),
-        this.context7.disconnect().catch(err => 
-          console.error('Error disconnecting Context7:', err)
-        )
+        this.taskManager
+          .disconnect()
+          .catch((err) => console.error('Error disconnecting TaskManager:', err)),
+        this.context7
+          .disconnect()
+          .catch((err) => console.error('Error disconnecting Context7:', err)),
       ]);
-      
+
       this.initialized = false;
       console.log('MCP servers disconnected');
     } catch (error) {
@@ -89,7 +89,7 @@ export class MCPManager {
       services: {
         taskManager: !!this.taskManager,
         context7: !!this.context7,
-      }
+      },
     };
   }
 }

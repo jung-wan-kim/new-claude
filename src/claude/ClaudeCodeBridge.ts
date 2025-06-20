@@ -67,7 +67,11 @@ export class ClaudeCodeBridge extends EventEmitter {
     });
   }
 
-  executeStream(command: string, onData: (data: string) => void, options: ClaudeCodeOptions = {}): ChildProcess {
+  executeStream(
+    command: string,
+    onData: (data: string) => void,
+    options: ClaudeCodeOptions = {}
+  ): ChildProcess {
     const args = command.split(' ');
     const claudeCommand = args[0];
     const claudeArgs = args.slice(1);
@@ -105,20 +109,22 @@ export class ClaudeCodeBridge extends EventEmitter {
   async executeCommand(command: string, options: ClaudeCodeOptions = {}): Promise<void> {
     return new Promise((resolve, reject) => {
       const result = this.execute(command, options);
-      
-      result.then((res) => {
-        if (res.exitCode === 0) {
-          this.emit('command:completed', res);
-          resolve();
-        } else {
-          const error = new Error(res.error || 'Command failed');
-          this.emit('command:failed', error);
-          reject(error);
-        }
-      }).catch((err) => {
-        this.emit('command:failed', err);
-        reject(err);
-      });
+
+      result
+        .then((res) => {
+          if (res.exitCode === 0) {
+            this.emit('command:completed', res);
+            resolve();
+          } else {
+            const error = new Error(res.error || 'Command failed');
+            this.emit('command:failed', error);
+            reject(error);
+          }
+        })
+        .catch((err) => {
+          this.emit('command:failed', err);
+          reject(err);
+        });
     });
   }
 
