@@ -1,18 +1,18 @@
 # Claude Code Controller
 
 <div align="center">
-  <img src="assets/icon.png" alt="Claude Code Controller" width="128" height="128">
   
-  **터미널 기반의 지능형 Claude Code 관리 도구**
+  **🤖 터미널 기반의 지능형 Claude Code 관리 도구**
   
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-  [![Platform: macOS](https://img.shields.io/badge/Platform-macOS-blue.svg)](https://www.apple.com/macos/)
-  [![TypeScript](https://img.shields.io/badge/TypeScript-4.0+-blue.svg)](https://www.typescriptlang.org/)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
+  [![Node.js](https://img.shields.io/badge/Node.js-16.0+-green.svg)](https://nodejs.org/)
+  [![CI](https://github.com/jung-wan-kim/new-claude/actions/workflows/ci.yml/badge.svg)](https://github.com/jung-wan-kim/new-claude/actions)
 </div>
 
 ## 개요
 
-Claude Code Controller는 Claude Code CLI를 더 효율적으로 사용하기 위한 macOS 네이티브 애플리케이션입니다. TaskManager와 Context7 MCP 서버를 통합하여 지능형 작업 관리와 컨텍스트 추적을 제공합니다.
+Claude Code Controller는 Claude Code CLI를 더 효율적으로 사용하기 위한 터미널 기반 애플리케이션입니다. MCP(Model Context Protocol) 서버들을 통합하여 지능형 작업 관리와 컨텍스트 추적을 제공합니다.
 
 ## 주요 기능
 

@@ -350,7 +350,7 @@ export class UIManager {
     if (this.useEnhancedUI && this.enhancedStatusBar) {
       const activeTask = this.taskStore.getActiveTask();
       const status = this.mcpManager.getStatus();
-      
+
       this.enhancedStatusBar.updateStatus({
         mode: this.currentMode.charAt(0).toUpperCase() + this.currentMode.slice(1),
         focusedPanel: this.getPanelDisplayName(this.currentFocus),
@@ -361,13 +361,13 @@ export class UIManager {
             }
           : undefined,
         mcpServers: {
-          taskManager: { 
+          taskManager: {
             connected: status.services.taskManager,
-            status: status.serverStatuses?.taskManager || undefined
+            status: undefined,
           },
-          context7: { 
+          context7: {
             connected: status.services.context7,
-            status: status.serverStatuses?.context7 || undefined
+            status: undefined,
           },
         },
         inputMode: this.currentMode === 'input',
@@ -380,10 +380,10 @@ export class UIManager {
 
   private getPanelDisplayName(panel: string): string {
     const names: { [key: string]: string } = {
-      'tasks': 'Tasks',
-      'work': 'Work',
-      'context': 'Context',
-      'logs': 'Logs',
+      tasks: 'Tasks',
+      work: 'Work',
+      context: 'Context',
+      logs: 'Logs',
     };
     return names[panel] || panel;
   }
@@ -394,14 +394,10 @@ export class UIManager {
     const currentIndex = themes.indexOf(currentTheme);
     const nextIndex = (currentIndex + 1) % themes.length;
     const nextTheme = themes[nextIndex] as any;
-    
+
     this.themeManager.setTheme(nextTheme);
     this.applyTheme(nextTheme);
-    this.notificationManager.showNotification(
-      this.screen,
-      `Theme changed to ${nextTheme}`,
-      'info'
-    );
+    this.notificationManager.showNotification(this.screen, `Theme changed to ${nextTheme}`, 'info');
   }
 
   private applyTheme(theme: string) {
@@ -409,13 +405,13 @@ export class UIManager {
     if (this.enhancedStatusBar) {
       this.enhancedStatusBar.setTheme(theme);
     }
-    
+
     // 화면 새로고침
     this.render();
   }
 
   private toggleFullscreen() {
-    // Blessed에서는 직접적인 전체화면 지원이 없으므로 
+    // Blessed에서는 직접적인 전체화면 지원이 없으므로
     // 사용자에게 터미널 전체화면 단축키를 안내
     this.notificationManager.showNotification(
       this.screen,
@@ -446,18 +442,5 @@ export class UIManager {
       this.taskStore.updateTask(task);
       this.updateStatusBar();
     }
-  }
-
-  // 화면 새로골침 최적화
-  private _renderDebounced = this.debounce(() => {
-    this.screen.render();
-  }, 16); // 60fps
-
-  private debounce(func: Function, wait: number) {
-    let timeout: NodeJS.Timeout;
-    return (...args: any[]) => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func.apply(this, args), wait);
-    };
   }
 }

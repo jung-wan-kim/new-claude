@@ -29,7 +29,7 @@ export class LogStore extends EventEmitter {
     };
 
     this.logs.push(log);
-    
+
     // 카테고리 추가
     if (log.category) {
       this.categories.add(log.category);
@@ -53,29 +53,29 @@ export class LogStore extends EventEmitter {
       if (this.filter.level && log.level !== this.filter.level) {
         return false;
       }
-      
+
       // 소스 필터
       if (this.filter.source && !log.source.includes(this.filter.source)) {
         return false;
       }
-      
+
       // 카테고리 필터
       if (this.filter.category && log.category !== this.filter.category) {
         return false;
       }
-      
+
       // 검색어 필터
       if (this.filter.searchTerm) {
         const searchLower = this.filter.searchTerm.toLowerCase();
         const matchMessage = log.message.toLowerCase().includes(searchLower);
         const matchSource = log.source.toLowerCase().includes(searchLower);
         const matchCategory = log.category?.toLowerCase().includes(searchLower) || false;
-        
+
         if (!matchMessage && !matchSource && !matchCategory) {
           return false;
         }
       }
-      
+
       return true;
     });
   }

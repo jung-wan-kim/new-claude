@@ -57,11 +57,11 @@ export class EnhancedMCPManager extends EventEmitter implements MCPManager {
     super();
     this.initTimeout = config?.initTimeout || 30000;
     this.mode = config?.mode || 'mock';
-    
+
     // Create clients with the specified mode
     this.taskManager = new TaskManagerClient({ mode: this.mode });
     this.context7 = new Context7Client({ mode: this.mode });
-    
+
     this.setupServers();
   }
 

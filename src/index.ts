@@ -23,7 +23,7 @@ program
     const app = new ClaudeCodeController({
       configPath: options.config,
       enableMCP: options.mcp,
-      mcpMode: options.mcpMode as 'mock' | 'real' || 'mock',
+      mcpMode: (options.mcpMode as 'mock' | 'real') || 'mock',
     });
 
     try {

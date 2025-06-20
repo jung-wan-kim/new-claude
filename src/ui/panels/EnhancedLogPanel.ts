@@ -23,7 +23,7 @@ export class EnhancedLogPanel {
   private logStore: LogStore;
   private currentFilter: LogFilter = {};
   private isSearchMode: boolean = false;
-  
+
   constructor(options: LogPanelOptions) {
     this.logStore = options.logStore;
 
@@ -138,7 +138,7 @@ export class EnhancedLogPanel {
 
     // 페이지 스크롤
     this.log.key(['pageup', 'b'], () => {
-      this.log.scroll(-this.log.height as number);
+      this.log.scroll(-this.log.height);
       this.box.screen.render();
     });
 
@@ -243,7 +243,7 @@ export class EnhancedLogPanel {
 
   private showCategoryFilter() {
     const categories = this.logStore.getCategories();
-    
+
     const form = blessed.form({
       parent: this.box.screen,
       top: 'center',
@@ -303,7 +303,7 @@ export class EnhancedLogPanel {
     if (this.isSearchMode) return;
 
     this.isSearchMode = true;
-    
+
     this.searchBox = blessed.textbox({
       parent: this.box,
       bottom: 0,
@@ -327,7 +327,7 @@ export class EnhancedLogPanel {
       } else {
         delete this.currentFilter.searchTerm;
       }
-      
+
       this.exitSearchMode();
       this.applyFilters();
     });
@@ -363,19 +363,19 @@ export class EnhancedLogPanel {
 
   private updateFilterStatus() {
     const parts: string[] = [];
-    
+
     if (this.currentFilter.level) {
       parts.push(`Level: ${this.currentFilter.level}`);
     }
-    
+
     if (this.currentFilter.category) {
       parts.push(`Cat: ${this.currentFilter.category}`);
     }
-    
+
     if (this.currentFilter.searchTerm) {
       parts.push(`Search: "${this.currentFilter.searchTerm}"`);
     }
-    
+
     const status = parts.length > 0 ? parts.join(' | ') : 'All logs';
     this.filterStatus.setContent(status);
   }
@@ -389,9 +389,9 @@ export class EnhancedLogPanel {
       const levelColor = this.getLevelColor(log.level);
       const icon = this.getLevelIcon(log.level);
       const categoryStr = log.category ? `[${log.category}] ` : '';
-      
+
       let message = log.message;
-      
+
       // 검색어 하이라이트
       if (this.currentFilter.searchTerm) {
         const regex = new RegExp(`(${this.escapeRegex(this.currentFilter.searchTerm)})`, 'gi');
@@ -404,7 +404,7 @@ export class EnhancedLogPanel {
     });
 
     this.log.setContent(content.join('\n'));
-    
+
     // 자동 스크롤 (새 로그가 추가될 때)
     if (!this.isSearchMode) {
       this.log.setScrollPerc(100);

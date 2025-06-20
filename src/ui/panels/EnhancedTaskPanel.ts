@@ -331,7 +331,7 @@ export class EnhancedTaskPanel {
   private formatTaskDetails(task: Task): string {
     const statusColor = this.getStatusColor(task.status);
     const statusIcon = this.getStatusIcon(task.status);
-    
+
     let details = `
 {bold}ID:{/bold} ${task.id}
 {bold}Title:{/bold} ${task.title}
@@ -345,16 +345,16 @@ export class EnhancedTaskPanel {
       const duration = this.calculateDuration(task.startedAt, task.completedAt);
       details += `{bold}Duration:{/bold} ${duration}\n`;
     }
-    
+
     if (task.completedAt) {
       details += `{bold}Completed:{/bold} ${new Date(task.completedAt).toLocaleString()}\n`;
     }
-    
+
     if (task.progress !== undefined) {
       const progressBar = this.createDetailedProgressBar(task.progress);
       details += `{bold}Progress:{/bold} ${progressBar}\n`;
     }
-    
+
     if (task.estimatedTime) {
       details += `{bold}Estimated Time:{/bold} ${task.estimatedTime}\n`;
     }
@@ -447,11 +447,13 @@ ${task.description || 'No description provided'}
     const tasks = this.taskStore.getTasks();
     const items = tasks.map((task) => this.renderTaskItem(task));
     this.list.setItems(items);
-    
+
     // 태스크 수 및 상태 통계 표시
     const stats = this.calculateTaskStats(tasks);
-    this.box.setLabel(` Tasks (${stats.total}) - ✔${stats.completed} ◐${stats.inProgress} ○${stats.pending} `);
-    
+    this.box.setLabel(
+      ` Tasks (${stats.total}) - ✔${stats.completed} ◐${stats.inProgress} ○${stats.pending} `
+    );
+
     this.parent.render();
   }
 
@@ -485,11 +487,11 @@ ${task.description || 'No description provided'}
     const start = new Date(startTime).getTime();
     const end = endTime ? new Date(endTime).getTime() : Date.now();
     const duration = end - start;
-    
+
     const hours = Math.floor(duration / (1000 * 60 * 60));
     const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((duration % (1000 * 60)) / 1000);
-    
+
     if (hours > 0) {
       return `${hours}h ${minutes}m ${seconds}s`;
     } else if (minutes > 0) {
@@ -508,10 +510,10 @@ ${task.description || 'No description provided'}
   } {
     return {
       total: tasks.length,
-      completed: tasks.filter(t => t.status === 'completed').length,
-      inProgress: tasks.filter(t => t.status === 'in_progress').length,
-      pending: tasks.filter(t => t.status === 'pending').length,
-      failed: tasks.filter(t => t.status === 'failed').length,
+      completed: tasks.filter((t) => t.status === 'completed').length,
+      inProgress: tasks.filter((t) => t.status === 'in_progress').length,
+      pending: tasks.filter((t) => t.status === 'pending').length,
+      failed: tasks.filter((t) => t.status === 'failed').length,
     };
   }
 }

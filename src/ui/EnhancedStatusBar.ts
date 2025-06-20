@@ -97,14 +97,16 @@ export class EnhancedStatusBar {
     } else {
       modeDisplay = '{green-fg}NORMAL{/}';
     }
-    
+
     const focusIcon = this.getFocusIcon(status.focusedPanel);
     this.leftSection.setContent(` ${modeDisplay} | ${focusIcon} ${status.focusedPanel} `);
 
     // 중앙: 작업 정보
     if (status.activeTask) {
       this.startSpinner();
-      const progress = status.activeTask.progress ? ` ${this.getProgressBar(status.activeTask.progress)}` : '';
+      const progress = status.activeTask.progress
+        ? ` ${this.getProgressBar(status.activeTask.progress)}`
+        : '';
       this.centerSection.setContent(
         `${this.spinner[this.spinnerIndex]} ${status.activeTask.title}${progress}`
       );
@@ -127,7 +129,6 @@ export class EnhancedStatusBar {
     if (servers.taskManager) {
       const icon = servers.taskManager.connected ? '●' : '○';
       const color = servers.taskManager.connected ? '{green-fg}' : '{red-fg}';
-      const status = servers.taskManager.status || (servers.taskManager.connected ? 'OK' : 'OFF');
       icons += `${color}TM:${icon}{/}`;
     } else {
       icons += '{gray-fg}TM:○{/}';
@@ -139,7 +140,6 @@ export class EnhancedStatusBar {
     if (servers.context7) {
       const icon = servers.context7.connected ? '●' : '○';
       const color = servers.context7.connected ? '{green-fg}' : '{red-fg}';
-      const status = servers.context7.status || (servers.context7.connected ? 'OK' : 'OFF');
       icons += `${color}C7:${icon}{/}`;
     } else {
       icons += '{gray-fg}C7:○{/}';
@@ -191,10 +191,10 @@ export class EnhancedStatusBar {
 
   private getFocusIcon(panel: string): string {
     const icons: { [key: string]: string } = {
-      'Tasks': '📋',
-      'Work': '💻',
-      'Context': '📚',
-      'Logs': '📜',
+      Tasks: '📋',
+      Work: '💻',
+      Context: '📚',
+      Logs: '📜',
     };
     return icons[panel] || '📄';
   }

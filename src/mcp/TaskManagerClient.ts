@@ -52,15 +52,15 @@ export class TaskManagerClient {
 
     try {
       console.log('Connecting to TaskManager MCP server...');
-      
+
       // Dynamic import of MCP SDK
       const { Client } = await import('@modelcontextprotocol/sdk/client/index.js');
       const { StdioClientTransport } = await import('@modelcontextprotocol/sdk/client/stdio.js');
-      
+
       // Create transport
       this.transport = new StdioClientTransport({
         command: this.serverPath,
-        args: this.serverArgs
+        args: this.serverArgs,
       });
 
       // Create client
@@ -71,7 +71,7 @@ export class TaskManagerClient {
 
       // Connect
       await this.client.connect(this.transport);
-      
+
       this.connected = true;
       console.log('TaskManager client connected successfully');
     } catch (error) {
@@ -96,9 +96,9 @@ export class TaskManagerClient {
     try {
       const result = await this.client!.callTool({
         name: 'request_planning',
-        arguments: data
+        arguments: data,
       });
-      return (result as any).content[0] as { requestId: string };
+      return result.content[0] as { requestId: string };
     } catch (error) {
       console.error('Failed to create request:', error);
       throw error;
@@ -117,9 +117,9 @@ export class TaskManagerClient {
     try {
       const result = await this.client!.callTool({
         name: 'get_next_task',
-        arguments: { requestId }
+        arguments: { requestId },
       });
-      const response = (result as any).content[0] as { status: string; task?: Task };
+      const response = result.content[0] as { status: string; task?: Task };
       return response.task || null;
     } catch (error) {
       console.error('Failed to get next task:', error);
@@ -139,10 +139,10 @@ export class TaskManagerClient {
     try {
       await this.client!.callTool({
         name: 'mark_task_done',
-        arguments: { 
-          taskId, 
-          completedDetails 
-        }
+        arguments: {
+          taskId,
+          completedDetails,
+        },
       });
     } catch (error) {
       console.error('Failed to mark task done:', error);
@@ -162,9 +162,9 @@ export class TaskManagerClient {
     try {
       const result = await this.client!.callTool({
         name: 'list_requests',
-        arguments: {}
+        arguments: {},
       });
-      return (result as any).content[0] as Request[];
+      return result.content[0] as Request[];
     } catch (error) {
       console.error('Failed to list requests:', error);
       throw error;
@@ -173,7 +173,7 @@ export class TaskManagerClient {
 
   async disconnect(): Promise<void> {
     this.connected = false;
-    
+
     if (this.mode === 'real' && this.client) {
       try {
         await this.client.close();
@@ -181,7 +181,7 @@ export class TaskManagerClient {
         console.error('Error closing client connection:', error);
       }
     }
-    
+
     if (this.transport) {
       try {
         await this.transport.close();
@@ -205,12 +205,18 @@ export class TaskManagerClient {
     return task ? { status: 'next_task', task } : { status: 'all_tasks_done' };
   }
 
-  async mark_task_done(params: { taskId: string; completedDetails?: string }): Promise<{ status: string }> {
+  async mark_task_done(params: {
+    taskId: string;
+    completedDetails?: string;
+  }): Promise<{ status: string }> {
     await this.markTaskDone(params.taskId, params.completedDetails);
     return { status: 'task_marked_done' };
   }
 
-  async approve_task_completion(params: { requestId: string; taskId: string }): Promise<{ status: string }> {
+  async approve_task_completion(params: {
+    requestId: string;
+    taskId: string;
+  }): Promise<{ status: string }> {
     if (!this.connected) {
       throw new Error('TaskManager client not initialized');
     }
@@ -222,9 +228,9 @@ export class TaskManagerClient {
     try {
       const result = await this.client!.callTool({
         name: 'approve_task_completion',
-        arguments: params
+        arguments: params,
       });
-      return (result as any).content[0] as { status: string };
+      return result.content[0] as { status: string };
     } catch (error) {
       console.error('Failed to approve task completion:', error);
       throw error;

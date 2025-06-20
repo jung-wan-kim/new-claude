@@ -42,15 +42,15 @@ export class Context7Client {
 
     try {
       console.log('Connecting to Context7 MCP server...');
-      
+
       // Dynamic import of MCP SDK
       const { Client } = await import('@modelcontextprotocol/sdk/client/index.js');
       const { StdioClientTransport } = await import('@modelcontextprotocol/sdk/client/stdio.js');
-      
+
       // Create transport
       this.transport = new StdioClientTransport({
         command: this.serverPath,
-        args: this.serverArgs
+        args: this.serverArgs,
       });
 
       // Create client
@@ -61,7 +61,7 @@ export class Context7Client {
 
       // Connect
       await this.client.connect(this.transport);
-      
+
       this.connected = true;
       console.log('Context7 client connected successfully');
     } catch (error) {
@@ -96,11 +96,11 @@ export class Context7Client {
             tags: filters?.tags,
             type: filters?.type,
             date_from: filters?.dateFrom,
-            date_to: filters?.dateTo
-          }
-        }
+            date_to: filters?.dateTo,
+          },
+        },
       });
-      return (result as any).content[0] as ContextEntry[];
+      return result.content[0] as ContextEntry[];
     } catch (error) {
       console.error('Failed to search context:', error);
       throw error;
@@ -134,9 +134,9 @@ export class Context7Client {
     try {
       const result = await this.client!.callTool({
         name: 'context7_create',
-        arguments: data
+        arguments: data,
       });
-      return (result as any).content[0] as ContextEntry;
+      return result.content[0] as ContextEntry;
     } catch (error) {
       console.error('Failed to create context:', error);
       throw error;
@@ -155,9 +155,9 @@ export class Context7Client {
     try {
       const result = await this.client!.callTool({
         name: 'context7_get',
-        arguments: { id }
+        arguments: { id },
       });
-      return (result as any).content[0] as ContextEntry;
+      return result.content[0] as ContextEntry;
     } catch (error) {
       console.error('Failed to get context:', error);
       throw error;
@@ -186,10 +186,10 @@ export class Context7Client {
         name: 'context7_update',
         arguments: {
           id,
-          updates
-        }
+          updates,
+        },
       });
-      return (result as any).content[0] as ContextEntry;
+      return result.content[0] as ContextEntry;
     } catch (error) {
       console.error('Failed to update context:', error);
       throw error;
@@ -208,7 +208,7 @@ export class Context7Client {
     try {
       await this.client!.callTool({
         name: 'context7_delete',
-        arguments: { id }
+        arguments: { id },
       });
     } catch (error) {
       console.error('Failed to delete context:', error);
@@ -218,7 +218,7 @@ export class Context7Client {
 
   async disconnect(): Promise<void> {
     this.connected = false;
-    
+
     if (this.mode === 'real' && this.client) {
       try {
         await this.client.close();
@@ -226,7 +226,7 @@ export class Context7Client {
         console.error('Error closing client connection:', error);
       }
     }
-    
+
     if (this.transport) {
       try {
         await this.transport.close();

@@ -25,7 +25,7 @@ export class ClaudeCodeController {
   constructor(options: ControllerOptions = {}) {
     this.options = options;
     this.mcpManager = new EnhancedMCPManager({
-      mode: options.mcpMode || 'mock'
+      mode: options.mcpMode || 'mock',
     });
     this.claudeBridge = new ClaudeCodeBridge();
     this.taskStore = new TaskStore();

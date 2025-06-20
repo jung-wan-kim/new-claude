@@ -94,11 +94,11 @@ export class TaskStore extends EventEmitter {
   }
 
   getTaskById(taskId: string): Task | undefined {
-    return this.tasks.find(t => t.id === taskId);
+    return this.tasks.find((t) => t.id === taskId);
   }
 
   updateTask(task: Task) {
-    const index = this.tasks.findIndex(t => t.id === task.id);
+    const index = this.tasks.findIndex((t) => t.id === task.id);
     if (index !== -1) {
       this.tasks[index] = { ...task, updatedAt: new Date().toISOString() };
       this.emit('task:updated', this.tasks[index]);

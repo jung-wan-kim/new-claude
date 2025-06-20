@@ -16,16 +16,16 @@ export class MCPManager {
 
   constructor(options: MCPManagerOptions = {}) {
     this.mode = options.mode || 'mock';
-    
+
     // 전역 모드를 개별 클라이언트에 전달
     this.taskManager = new TaskManagerClient({
       mode: this.mode,
-      ...options.taskManager
+      ...options.taskManager,
     });
-    
+
     this.context7 = new Context7Client({
       mode: this.mode,
-      ...options.context7
+      ...options.context7,
     });
   }
 

@@ -20,7 +20,7 @@ export class HelpModal {
     { key: 'r', description: 'Refresh screen', category: 'Global' },
     { key: 'q', description: 'Quit application', category: 'Global' },
     { key: 't', description: 'Toggle theme', category: 'Global' },
-    
+
     // Task Panel
     { key: '↑/↓', description: 'Navigate tasks', category: 'Task Panel' },
     { key: 'Enter', description: 'Select/Execute task', category: 'Task Panel' },
@@ -29,21 +29,21 @@ export class HelpModal {
     { key: 'e', description: 'Edit task', category: 'Task Panel' },
     { key: 'Space', description: 'Toggle task completion', category: 'Task Panel' },
     { key: 'p', description: 'Change priority', category: 'Task Panel' },
-    
+
     // Work Panel
     { key: 'i', description: 'Enter input mode', category: 'Work Panel' },
     { key: 'Esc', description: 'Exit input mode', category: 'Work Panel' },
     { key: 'Ctrl+K', description: 'Clear terminal', category: 'Work Panel' },
     { key: 'Ctrl+C', description: 'Cancel current operation', category: 'Work Panel' },
     { key: 'Ctrl+L', description: 'Clear work area', category: 'Work Panel' },
-    
+
     // Context Panel
     { key: '↑/↓', description: 'Navigate contexts', category: 'Context Panel' },
     { key: 'Enter', description: 'View context details', category: 'Context Panel' },
     { key: 'a', description: 'Add new context', category: 'Context Panel' },
     { key: 'd', description: 'Delete context', category: 'Context Panel' },
     { key: 's', description: 'Search contexts', category: 'Context Panel' },
-    
+
     // Log Panel
     { key: '↑/↓', description: 'Scroll logs', category: 'Log Panel' },
     { key: 'f', description: 'Filter logs', category: 'Log Panel' },
@@ -57,25 +57,26 @@ export class HelpModal {
   show() {
     if (this.isShowing) return;
 
-    const categories = [...new Set(this.keyBindings.map(kb => kb.category))].filter(Boolean);
-    
+    const categories = [...new Set(this.keyBindings.map((kb) => kb.category))].filter(Boolean);
+
     let content = '{center}{bold}Claude Code Controller - Keyboard Shortcuts{/bold}{/center}\n\n';
-    
-    categories.forEach(category => {
+
+    categories.forEach((category) => {
       content += `{cyan-fg}{bold}${category}:{/bold}{/cyan-fg}\n`;
-      
-      const bindings = this.keyBindings.filter(kb => kb.category === category);
-      const maxKeyLength = Math.max(...bindings.map(kb => kb.key.length));
-      
-      bindings.forEach(binding => {
+
+      const bindings = this.keyBindings.filter((kb) => kb.category === category);
+      const maxKeyLength = Math.max(...bindings.map((kb) => kb.key.length));
+
+      bindings.forEach((binding) => {
         const paddedKey = binding.key.padEnd(maxKeyLength + 2);
         content += `  {yellow-fg}${paddedKey}{/yellow-fg} ${binding.description}\n`;
       });
-      
+
       content += '\n';
     });
-    
-    content += '\n{center}Press {yellow-fg}?{/yellow-fg} or {yellow-fg}Esc{/yellow-fg} to close{/center}';
+
+    content +=
+      '\n{center}Press {yellow-fg}?{/yellow-fg} or {yellow-fg}Esc{/yellow-fg} to close{/center}';
 
     this.modal = blessed.box({
       parent: this.screen,
@@ -145,6 +146,6 @@ export class HelpModal {
 
   // 카테고리별 키 바인딩 가져오기
   getKeyBindingsByCategory(category: string): KeyBinding[] {
-    return this.keyBindings.filter(kb => kb.category === category);
+    return this.keyBindings.filter((kb) => kb.category === category);
   }
 }
