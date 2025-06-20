@@ -58,14 +58,14 @@ export class TaskExecutor extends EventEmitter {
     return task;
   }
 
-  private createTaskViaMCP(data: {
+  private async createTaskViaMCP(data: {
     title: string;
     description: string;
     priority?: 'high' | 'medium' | 'low';
   }): Promise<Task> {
     try {
       // TaskManager MCP를 사용하여 Task 생성
-      const result = this.mcpManager.taskManager.request_planning({
+      const result = await this.mcpManager.taskManager.request_planning({
         originalRequest: data.title,
         tasks: [
           {
@@ -76,7 +76,7 @@ export class TaskExecutor extends EventEmitter {
       });
 
       // 생성된 Task 정보를 가져옴
-      const nextTask = this.mcpManager.taskManager.get_next_task({
+      const nextTask = await this.mcpManager.taskManager.get_next_task({
         requestId: result.requestId,
       });
 
@@ -175,7 +175,7 @@ export class TaskExecutor extends EventEmitter {
     return command;
   }
 
-  private handleCommandCompleted(result: { output?: string; error?: string }) {
+  private async handleCommandCompleted(result: { output?: string; error?: string }) {
     // 실행 중인 Task 찾기
     const execution = Array.from(this.runningTasks.values()).find((e) => e.status === 'running');
 
@@ -194,16 +194,15 @@ export class TaskExecutor extends EventEmitter {
     // MCP에 완료 알림
     if (task.id.startsWith('task-')) {
       try {
-        this.mcpManager.taskManager.mark_task_done({
-          requestId: execution.requestId,
+        await this.mcpManager.taskManager.mark_task_done({
           taskId: task.id,
           completedDetails: result.output || 'Task completed successfully',
         });
 
         // 자동 승인 모드인 경우
         if (this.options.autoApprove) {
-          this.mcpManager.taskManager.approve_task_completion({
-            requestId: execution.requestId,
+          await this.mcpManager.taskManager.approve_task_completion({
+            requestId: execution.requestId!,
             taskId: task.id,
           });
         }

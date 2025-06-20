@@ -19,6 +19,7 @@
     "typecheck": "tsc --noEmit",
     "test:mcp": "tsx src/test/test-mcp-connection.ts",
     "test:mcp:real": "tsx src/test/test-real-mcp.ts",
+    "test:mcp:modes": "tsx src/test/test-mcp-modes.ts",
     "ci": "npm run lint && npm run typecheck && npm run test"
   },
   "keywords": [

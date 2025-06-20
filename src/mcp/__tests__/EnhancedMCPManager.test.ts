@@ -4,17 +4,17 @@ import { EventEmitter } from 'events';
 // Mock MCP client
 class MockMCPClient extends EventEmitter {
   connected = false;
-  
+
   async initialize() {
     this.connected = true;
     return Promise.resolve();
   }
-  
+
   async disconnect() {
     this.connected = false;
     return Promise.resolve();
   }
-  
+
   async getStatus() {
     return { healthy: true };
   }
@@ -34,18 +34,19 @@ describe('EnhancedMCPManager', () => {
   describe('Initialization', () => {
     it('should initialize successfully', async () => {
       await mcpManager.initialize();
-      
+
       expect(mcpManager.isInitialized()).toBe(true);
       expect(mcpManager.getStatus().initialized).toBe(true);
     });
 
     it('should handle initialization failure gracefully', async () => {
       // Override taskManager to fail
-      (mcpManager as any).servers.get('taskManager').client.initialize = jest.fn()
+      (mcpManager as any).servers.get('taskManager').client.initialize = jest
+        .fn()
         .mockRejectedValue(new Error('Connection failed'));
 
       await expect(mcpManager.initialize()).resolves.not.toThrow();
-      
+
       const status = mcpManager.getStatus();
       expect(status.initialized).toBe(true); // Still initialized as servers are not required
     });
@@ -61,8 +62,8 @@ describe('EnhancedMCPManager', () => {
           success: true,
           servers: expect.objectContaining({
             taskManager: { success: true },
-            context7: { success: true }
-          })
+            context7: { success: true },
+          }),
         })
       );
     });
@@ -75,7 +76,7 @@ describe('EnhancedMCPManager', () => {
 
     it('should disconnect all servers', async () => {
       await mcpManager.disconnect();
-      
+
       expect(mcpManager.isInitialized()).toBe(false);
       const status = mcpManager.getStatus();
       expect(status.services.taskManager).toBe(false);
@@ -85,7 +86,7 @@ describe('EnhancedMCPManager', () => {
     it('should reconnect after disconnect', async () => {
       await mcpManager.disconnect();
       await mcpManager.reconnect();
-      
+
       expect(mcpManager.isInitialized()).toBe(true);
     });
   });
@@ -99,24 +100,24 @@ describe('EnhancedMCPManager', () => {
           name: 'test',
           client: mockClient,
           required: false,
-          healthCheckInterval: 100
+          healthCheckInterval: 100,
         },
         client: mockClient,
         status: 'connected' as const,
-        errorCount: 0
+        errorCount: 0,
       };
-      
+
       (mcpManager as any).servers.set('test', serverState);
-      
+
       // Make health check fail
       mockClient.getStatus = jest.fn().mockRejectedValue(new Error('Health check failed'));
-      
+
       mcpManager.on('serverDisconnected', (name, error) => {
         expect(name).toBe('test');
         expect(error).toBeDefined();
         done();
       });
-      
+
       // Start health check
       (mcpManager as any).startHealthCheck('test', serverState);
     });
@@ -125,9 +126,9 @@ describe('EnhancedMCPManager', () => {
   describe('Detailed Status', () => {
     it('should provide detailed server status', async () => {
       await mcpManager.initialize();
-      
+
       const detailedStatus = mcpManager.getDetailedStatus();
-      
+
       expect(detailedStatus.initialized).toBe(true);
       expect(detailedStatus.servers).toHaveProperty('taskManager');
       expect(detailedStatus.servers).toHaveProperty('context7');
@@ -143,17 +144,17 @@ describe('EnhancedMCPManager', () => {
 
     it('should warn when accessing disconnected server', async () => {
       const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
-      
+
       await mcpManager.initialize();
       const serverState = (mcpManager as any).servers.get('taskManager');
       serverState.status = 'disconnected';
-      
+
       mcpManager.getServer('taskManager');
-      
+
       expect(consoleWarnSpy).toHaveBeenCalledWith(
         expect.stringContaining('Server taskManager is not connected')
       );
-      
+
       consoleWarnSpy.mockRestore();
     });
   });

@@ -37,21 +37,31 @@ export interface InitializationResult {
   };
 }
 
+export interface EnhancedMCPManagerConfig {
+  initTimeout?: number;
+  mode?: 'mock' | 'real';
+}
+
 export class EnhancedMCPManager extends EventEmitter implements MCPManager {
   private servers: Map<string, MCPServerState> = new Map();
   private healthCheckTimers: Map<string, NodeJS.Timeout> = new Map();
   private initTimeout: number;
   private _initialized = false;
+  private mode: 'mock' | 'real';
 
   // MCPManager interface properties
   public taskManager: TaskManagerClient;
   public context7: Context7Client;
 
-  constructor(config?: { initTimeout?: number }) {
+  constructor(config?: EnhancedMCPManagerConfig) {
     super();
     this.initTimeout = config?.initTimeout || 30000;
-    this.taskManager = new TaskManagerClient();
-    this.context7 = new Context7Client();
+    this.mode = config?.mode || 'mock';
+    
+    // Create clients with the specified mode
+    this.taskManager = new TaskManagerClient({ mode: this.mode });
+    this.context7 = new Context7Client({ mode: this.mode });
+    
     this.setupServers();
   }
 
@@ -191,7 +201,11 @@ export class EnhancedMCPManager extends EventEmitter implements MCPManager {
     const timer = setInterval(async () => {
       try {
         // 간단한 ping 형태의 헬스체크
-        (await state.client.getStatus?.()) || (await state.client.list_requests?.());
+        if ('list_requests' in state.client && typeof state.client.list_requests === 'function') {
+          await state.client.list_requests();
+        } else if ('search' in state.client && typeof state.client.search === 'function') {
+          await state.client.search('');
+        }
         state.lastHealthCheck = new Date();
 
         if (state.status !== 'connected') {
@@ -290,6 +304,7 @@ export class EnhancedMCPManager extends EventEmitter implements MCPManager {
 
   getDetailedStatus(): {
     initialized: boolean;
+    mode: 'mock' | 'real';
     servers: {
       [key: string]: {
         status: string;
@@ -315,6 +330,7 @@ export class EnhancedMCPManager extends EventEmitter implements MCPManager {
 
     return {
       initialized: this._initialized,
+      mode: this.mode,
       servers,
     };
   }

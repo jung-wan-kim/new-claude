@@ -18,10 +18,12 @@ program
   .description('Start the Claude Code Controller TUI')
   .option('-c, --config <path>', 'Config file path', '.ccc.config.json')
   .option('--no-mcp', 'Start without MCP servers')
-  .action(async (options: { config?: string; mcp?: boolean }) => {
+  .option('-m, --mcp-mode <mode>', 'MCP mode: mock or real', 'mock')
+  .action(async (options: { config?: string; mcp?: boolean; mcpMode?: string }) => {
     const app = new ClaudeCodeController({
       configPath: options.config,
       enableMCP: options.mcp,
+      mcpMode: options.mcpMode as 'mock' | 'real' || 'mock',
     });
 
     try {
@@ -35,8 +37,10 @@ program
 program
   .command('test-mcp')
   .description('Test MCP server connections')
-  .action(async () => {
-    await import('./test/test-mcp-connection');
+  .option('-m, --mode <mode>', 'Test mode: mock, real, or both', 'both')
+  .action(async (options: { mode?: string }) => {
+    process.argv[2] = options.mode || 'both';
+    await import('./test/test-mcp-modes');
   });
 
 program.parse(process.argv);

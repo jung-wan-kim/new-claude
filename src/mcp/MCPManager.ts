@@ -1,15 +1,32 @@
 // MCP 매니저 - TaskManager와 Context7 통합 관리
-import { TaskManagerClient } from './TaskManagerClient';
-import { Context7Client } from './Context7Client';
+import { TaskManagerClient, TaskManagerClientOptions } from './TaskManagerClient';
+import { Context7Client, Context7ClientOptions } from './Context7Client';
+
+export interface MCPManagerOptions {
+  mode?: 'mock' | 'real';
+  taskManager?: TaskManagerClientOptions;
+  context7?: Context7ClientOptions;
+}
 
 export class MCPManager {
   public taskManager: TaskManagerClient;
   public context7: Context7Client;
   private initialized = false;
+  private mode: 'mock' | 'real';
 
-  constructor() {
-    this.taskManager = new TaskManagerClient();
-    this.context7 = new Context7Client();
+  constructor(options: MCPManagerOptions = {}) {
+    this.mode = options.mode || 'mock';
+    
+    // 전역 모드를 개별 클라이언트에 전달
+    this.taskManager = new TaskManagerClient({
+      mode: this.mode,
+      ...options.taskManager
+    });
+    
+    this.context7 = new Context7Client({
+      mode: this.mode,
+      ...options.context7
+    });
   }
 
   async initialize(): Promise<void> {
@@ -18,12 +35,12 @@ export class MCPManager {
       return;
     }
 
-    console.log('Initializing MCP servers...');
+    console.log(`Initializing MCP servers in ${this.mode} mode...`);
 
     try {
       // TaskManager 초기화 시도
       try {
-        this.taskManager.initialize();
+        await this.taskManager.initialize();
         console.log('✓ TaskManager MCP client initialized');
       } catch (error) {
         console.warn('⚠ TaskManager initialization failed:', error);
@@ -32,7 +49,7 @@ export class MCPManager {
 
       // Context7 초기화 시도
       try {
-        this.context7.initialize();
+        await this.context7.initialize();
         console.log('✓ Context7 MCP client initialized');
       } catch (error) {
         console.warn('⚠ Context7 initialization failed:', error);
@@ -40,7 +57,7 @@ export class MCPManager {
       }
 
       this.initialized = true;
-      console.log('MCP Manager initialization completed');
+      console.log(`MCP Manager initialization completed in ${this.mode} mode`);
     } catch (error) {
       console.error('Failed to initialize MCP Manager:', error);
       throw error;
@@ -51,8 +68,8 @@ export class MCPManager {
     console.log('Disconnecting MCP servers...');
 
     try {
-      this.taskManager.disconnect();
-      this.context7.disconnect();
+      await this.taskManager.disconnect();
+      await this.context7.disconnect();
 
       this.initialized = false;
       console.log('MCP servers disconnected');
@@ -73,6 +90,7 @@ export class MCPManager {
 
   getStatus(): {
     initialized: boolean;
+    mode: 'mock' | 'real';
     services: {
       taskManager: boolean;
       context7: boolean;
@@ -80,6 +98,7 @@ export class MCPManager {
   } {
     return {
       initialized: this.initialized,
+      mode: this.mode,
       services: {
         taskManager: !!this.taskManager,
         context7: !!this.context7,

@@ -24,7 +24,7 @@ import {
   isMac,
   isWindows,
   isLinux,
-  formatShortcut
+  formatShortcut,
 } from '../utils';
 
 describe('Utils', () => {
@@ -105,9 +105,9 @@ describe('Utils', () => {
       const items = [
         { id: 1, name: 'A' },
         { id: 2, name: 'B' },
-        { id: 1, name: 'C' }
+        { id: 1, name: 'C' },
       ];
-      const unique = uniqueBy(items, item => item.id);
+      const unique = uniqueBy(items, (item) => item.id);
       expect(unique).toHaveLength(2);
       expect(unique[0].name).toBe('A');
       expect(unique[1].name).toBe('B');
@@ -117,20 +117,16 @@ describe('Utils', () => {
       const items = [
         { type: 'fruit', name: 'apple' },
         { type: 'vegetable', name: 'carrot' },
-        { type: 'fruit', name: 'banana' }
+        { type: 'fruit', name: 'banana' },
       ];
-      const grouped = groupBy(items, item => item.type);
+      const grouped = groupBy(items, (item) => item.type);
       expect(grouped.fruit).toHaveLength(2);
       expect(grouped.vegetable).toHaveLength(1);
     });
 
     it('should sort items by key', () => {
-      const items = [
-        { value: 3 },
-        { value: 1 },
-        { value: 2 }
-      ];
-      const sorted = sortBy(items, item => item.value);
+      const items = [{ value: 3 }, { value: 1 }, { value: 2 }];
+      const sorted = sortBy(items, (item) => item.value);
       expect(sorted[0].value).toBe(1);
       expect(sorted[1].value).toBe(2);
       expect(sorted[2].value).toBe(3);
@@ -190,14 +186,14 @@ describe('Utils', () => {
       });
 
       const retryPromise = retry(fn, { maxAttempts: 3, delay: 1000 });
-      
+
       // Fast-forward through retries
       await jest.advanceTimersByTimeAsync(2000);
-      
+
       const result = await retryPromise;
       expect(result).toBe('Success');
       expect(fn).toHaveBeenCalledTimes(3);
-      
+
       jest.useRealTimers();
     });
 
@@ -244,13 +240,13 @@ describe('Utils', () => {
 
     afterEach(() => {
       Object.defineProperty(process, 'platform', {
-        value: originalPlatform
+        value: originalPlatform,
       });
     });
 
     it('should detect macOS', () => {
       Object.defineProperty(process, 'platform', {
-        value: 'darwin'
+        value: 'darwin',
       });
       expect(isMac()).toBe(true);
       expect(isWindows()).toBe(false);
@@ -259,7 +255,7 @@ describe('Utils', () => {
 
     it('should detect Windows', () => {
       Object.defineProperty(process, 'platform', {
-        value: 'win32'
+        value: 'win32',
       });
       expect(isMac()).toBe(false);
       expect(isWindows()).toBe(true);
@@ -268,7 +264,7 @@ describe('Utils', () => {
 
     it('should detect Linux', () => {
       Object.defineProperty(process, 'platform', {
-        value: 'linux'
+        value: 'linux',
       });
       expect(isMac()).toBe(false);
       expect(isWindows()).toBe(false);
@@ -281,13 +277,13 @@ describe('Utils', () => {
 
     afterEach(() => {
       Object.defineProperty(process, 'platform', {
-        value: originalPlatform
+        value: originalPlatform,
       });
     });
 
     it('should format shortcuts for macOS', () => {
       Object.defineProperty(process, 'platform', {
-        value: 'darwin'
+        value: 'darwin',
       });
       expect(formatShortcut('cmd+s')).toBe('⌘s');
       expect(formatShortcut('ctrl+alt+shift+a')).toBe('⌃⌥⇧a');
@@ -295,7 +291,7 @@ describe('Utils', () => {
 
     it('should format shortcuts for other platforms', () => {
       Object.defineProperty(process, 'platform', {
-        value: 'win32'
+        value: 'win32',
       });
       expect(formatShortcut('cmd+s')).toBe('Ctrl+s');
     });

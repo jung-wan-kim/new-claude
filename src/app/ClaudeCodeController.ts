@@ -9,6 +9,7 @@ import { LogStore } from '../stores/LogStore';
 export interface ControllerOptions {
   configPath?: string;
   enableMCP?: boolean;
+  mcpMode?: 'mock' | 'real';
 }
 
 export class ClaudeCodeController {
@@ -23,7 +24,9 @@ export class ClaudeCodeController {
 
   constructor(options: ControllerOptions = {}) {
     this.options = options;
-    this.mcpManager = new EnhancedMCPManager();
+    this.mcpManager = new EnhancedMCPManager({
+      mode: options.mcpMode || 'mock'
+    });
     this.claudeBridge = new ClaudeCodeBridge();
     this.taskStore = new TaskStore();
     this.contextStore = new ContextStore();

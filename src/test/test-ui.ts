@@ -3,11 +3,11 @@ import { ClaudeCodeController } from '../app/ClaudeCodeController';
 
 async function testUI() {
   console.log('Starting UI test...');
-  
+
   const controller = new ClaudeCodeController({
-    enableMCP: true
+    enableMCP: true,
   });
-  
+
   try {
     await controller.start();
   } catch (error) {

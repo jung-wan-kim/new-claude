@@ -15,7 +15,7 @@ describe('TaskStore', () => {
         status: 'pending' as const,
         priority: 'medium' as const,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
 
       const task = taskStore.addTask(taskData);
@@ -32,7 +32,7 @@ describe('TaskStore', () => {
         status: 'pending',
         priority: 'medium',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       });
 
       taskStore.updateTaskStatus(task.id, 'in_progress');
@@ -49,7 +49,7 @@ describe('TaskStore', () => {
         status: 'pending',
         priority: 'medium',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       });
 
       taskStore.updateTaskStatus(task.id, 'completed');
@@ -66,7 +66,7 @@ describe('TaskStore', () => {
         status: 'pending',
         priority: 'medium',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       });
 
       taskStore.deleteTask(task.id);
@@ -81,7 +81,7 @@ describe('TaskStore', () => {
         status: 'pending',
         priority: 'medium',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       });
 
       taskStore.setActiveTask(task.id);
@@ -101,7 +101,7 @@ describe('TaskStore', () => {
         status: 'pending',
         priority: 'medium',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       });
 
       taskStore.addTask({
@@ -110,7 +110,7 @@ describe('TaskStore', () => {
         status: 'in_progress',
         priority: 'high',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       });
 
       taskStore.addTask({
@@ -119,7 +119,7 @@ describe('TaskStore', () => {
         status: 'completed',
         priority: 'low',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       });
     });
 
@@ -150,7 +150,7 @@ describe('TaskStore', () => {
         status: 'pending',
         priority: 'medium',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       });
 
       expect(addedListener).toHaveBeenCalledWith(task);
