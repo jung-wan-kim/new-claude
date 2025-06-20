@@ -29,11 +29,11 @@ export class TaskExecutor extends EventEmitter {
   private setupEventListeners() {
     // Claude 실행 결과 리스너
     this.claudeBridge.on('command:completed', (result) => {
-      this.handleCommandCompleted(result);
+      void this.handleCommandCompleted(result);
     });
 
     this.claudeBridge.on('command:failed', (error) => {
-      this.handleCommandFailed(error);
+      void this.handleCommandFailed(error);
     });
 
     this.claudeBridge.on('output', (data) => {
@@ -58,14 +58,14 @@ export class TaskExecutor extends EventEmitter {
     return task;
   }
 
-  private async createTaskViaMCP(data: {
+  private createTaskViaMCP(data: {
     title: string;
     description: string;
     priority?: 'high' | 'medium' | 'low';
   }): Promise<Task> {
     try {
       // TaskManager MCP를 사용하여 Task 생성
-      const result = await this.mcpManager.taskManager.request_planning({
+      const result = this.mcpManager.taskManager.request_planning({
         originalRequest: data.title,
         tasks: [
           {
@@ -76,7 +76,7 @@ export class TaskExecutor extends EventEmitter {
       });
 
       // 생성된 Task 정보를 가져옴
-      const nextTask = await this.mcpManager.taskManager.get_next_task({
+      const nextTask = this.mcpManager.taskManager.get_next_task({
         requestId: result.requestId,
       });
 
@@ -94,7 +94,10 @@ export class TaskExecutor extends EventEmitter {
         updatedAt: new Date().toISOString(),
       };
     } catch (error) {
-      this.logStore.error(`Failed to create task via MCP: ${error}`, 'TaskExecutor');
+      this.logStore.error(
+        `Failed to create task via MCP: ${error instanceof Error ? error.message : String(error)}`,
+        'TaskExecutor'
+      );
 
       // Fallback: 로컬에서 Task 생성
       return {
@@ -155,8 +158,8 @@ export class TaskExecutor extends EventEmitter {
           }
         }, this.options.timeout);
       }
-    } catch (error: any) {
-      this.handleTaskError(task, error);
+    } catch (error) {
+      this.handleTaskError(task, error instanceof Error ? error : new Error(String(error)));
     }
   }
 
@@ -172,7 +175,7 @@ export class TaskExecutor extends EventEmitter {
     return command;
   }
 
-  private async handleCommandCompleted(result: any) {
+  private handleCommandCompleted(result: { output?: string; error?: string }) {
     // 실행 중인 Task 찾기
     const execution = Array.from(this.runningTasks.values()).find((e) => e.status === 'running');
 
@@ -191,7 +194,7 @@ export class TaskExecutor extends EventEmitter {
     // MCP에 완료 알림
     if (task.id.startsWith('task-')) {
       try {
-        await this.mcpManager.taskManager.mark_task_done({
+        this.mcpManager.taskManager.mark_task_done({
           requestId: execution.requestId,
           taskId: task.id,
           completedDetails: result.output || 'Task completed successfully',
@@ -199,7 +202,7 @@ export class TaskExecutor extends EventEmitter {
 
         // 자동 승인 모드인 경우
         if (this.options.autoApprove) {
-          await this.mcpManager.taskManager.approve_task_completion({
+          this.mcpManager.taskManager.approve_task_completion({
             requestId: execution.requestId,
             taskId: task.id,
           });
@@ -216,13 +219,13 @@ export class TaskExecutor extends EventEmitter {
     this.processQueue();
   }
 
-  private async handleCommandFailed(error: any) {
+  private handleCommandFailed(error: unknown) {
     // 실행 중인 Task 찾기
     const execution = Array.from(this.runningTasks.values()).find((e) => e.status === 'running');
 
     if (!execution) return;
 
-    this.handleTaskError(execution.task, error);
+    this.handleTaskError(execution.task, error instanceof Error ? error : new Error(String(error)));
   }
 
   private handleTaskError(task: Task, error: Error) {
@@ -253,11 +256,11 @@ export class TaskExecutor extends EventEmitter {
     const maxConcurrent = this.options.maxConcurrent || 3;
     while (this.runningTasks.size < maxConcurrent && this.taskQueue.length > 0) {
       const task = this.taskQueue.shift()!;
-      this.executeTask(task);
+      void this.executeTask(task);
     }
   }
 
-  async cancelTask(taskId: string): Promise<void> {
+  cancelTask(taskId: string): void {
     const execution = this.runningTasks.get(taskId);
     if (!execution) {
       // 큐에서 제거
@@ -266,7 +269,7 @@ export class TaskExecutor extends EventEmitter {
     }
 
     // Claude 실행 취소
-    await this.claudeBridge.cancelCurrentCommand();
+    this.claudeBridge.cancelCurrentCommand();
 
     // Task 상태 업데이트
     const task = execution.task;

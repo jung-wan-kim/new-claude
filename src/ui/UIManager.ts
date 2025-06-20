@@ -255,27 +255,32 @@ Press any key to close...`,
 
   private setupEventListeners() {
     // Task 관련 이벤트
-    this.screen.on('task:create', async (data: any) => {
-      try {
-        const task = await this.taskExecutor.createAndExecuteTask({
-          title: data.title,
-          description: data.description,
-          priority: data.priority || 'medium',
-        });
+    this.screen.on(
+      'task:create',
+      (data: { title: string; description: string; priority?: 'high' | 'medium' | 'low' }) => {
+        void (async () => {
+          try {
+            const task = await this.taskExecutor.createAndExecuteTask({
+              title: data.title,
+              description: data.description,
+              priority: data.priority || 'medium',
+            });
 
-        this.notificationManager.showNotification(
-          this.screen,
-          `Task created: ${task.title}`,
-          'success'
-        );
-      } catch (error: any) {
-        this.notificationManager.showNotification(
-          this.screen,
-          `Failed to create task: ${error.message}`,
-          'error'
-        );
+            this.notificationManager.showNotification(
+              this.screen,
+              `Task created: ${task.title}`,
+              'success'
+            );
+          } catch (error) {
+            this.notificationManager.showNotification(
+              this.screen,
+              `Failed to create task: ${error instanceof Error ? error.message : String(error)}`,
+              'error'
+            );
+          }
+        })();
       }
-    });
+    );
 
     this.screen.on('task:execute', async (task: any) => {
       this.logStore.info(`Executing task: ${task.title}`, 'Task');

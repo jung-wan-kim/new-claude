@@ -1,4 +1,6 @@
 // 공통 타입 정의
+import type { TaskManagerClient } from '../mcp/TaskManagerClient';
+import type { Context7Client } from '../mcp/Context7Client';
 
 // Task 관련 타입
 export interface Task {
@@ -14,7 +16,7 @@ export interface Task {
   updatedAt: string;
   completedAt?: string;
   contextIds?: string[]; // 관련 컨텍스트 ID들
-  metadata?: Record<string, any>; // 추가 메타데이터
+  metadata?: Record<string, unknown>; // 추가 메타데이터
 }
 
 export interface Request {
@@ -33,7 +35,7 @@ export interface ContextEntry {
   content: string;
   type?: string;
   tags?: string[];
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
 }
@@ -77,7 +79,7 @@ export interface Workflow {
   name: string;
   description: string;
   steps: WorkflowStep[];
-  variables: Record<string, any>;
+  variables: Record<string, unknown>;
   status: 'idle' | 'running' | 'completed' | 'failed';
 }
 
@@ -85,9 +87,9 @@ export interface WorkflowStep {
   id: string;
   type: 'claude' | 'terminal' | 'mcp' | 'conditional';
   name: string;
-  config: any;
+  config: Record<string, unknown>;
   status: 'pending' | 'running' | 'completed' | 'failed' | 'skipped';
-  output?: any;
+  output?: unknown;
 }
 
 // 설정 타입
@@ -123,7 +125,7 @@ export interface LogEntry {
   level: 'debug' | 'info' | 'warn' | 'error';
   source: string;
   message: string;
-  details?: any;
+  details?: unknown;
 }
 
 // 메트릭 타입
@@ -148,8 +150,8 @@ export interface Metrics {
 
 // MCP 관련 타입
 export interface MCPManager {
-  taskManager: any;
-  context7: any;
+  taskManager: TaskManagerClient;
+  context7: Context7Client;
   initialize(): Promise<void>;
   disconnect(): Promise<void>;
   reconnect(): Promise<void>;

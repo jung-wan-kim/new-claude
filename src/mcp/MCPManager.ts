@@ -23,7 +23,7 @@ export class MCPManager {
     try {
       // TaskManager 초기화 시도
       try {
-        await this.taskManager.initialize();
+        this.taskManager.initialize();
         console.log('✓ TaskManager MCP client initialized');
       } catch (error) {
         console.warn('⚠ TaskManager initialization failed:', error);
@@ -32,7 +32,7 @@ export class MCPManager {
 
       // Context7 초기화 시도
       try {
-        await this.context7.initialize();
+        this.context7.initialize();
         console.log('✓ Context7 MCP client initialized');
       } catch (error) {
         console.warn('⚠ Context7 initialization failed:', error);
@@ -51,14 +51,8 @@ export class MCPManager {
     console.log('Disconnecting MCP servers...');
 
     try {
-      await Promise.all([
-        this.taskManager
-          .disconnect()
-          .catch((err) => console.error('Error disconnecting TaskManager:', err)),
-        this.context7
-          .disconnect()
-          .catch((err) => console.error('Error disconnecting Context7:', err)),
-      ]);
+      this.taskManager.disconnect();
+      this.context7.disconnect();
 
       this.initialized = false;
       console.log('MCP servers disconnected');

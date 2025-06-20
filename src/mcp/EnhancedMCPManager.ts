@@ -12,7 +12,7 @@ export interface RetryPolicy {
 
 export interface MCPServerConfig {
   name: string;
-  client: any;
+  client: TaskManagerClient | Context7Client;
   required: boolean;
   retryPolicy?: RetryPolicy;
   healthCheckInterval?: number;
@@ -20,7 +20,7 @@ export interface MCPServerConfig {
 
 export interface MCPServerState {
   config: MCPServerConfig;
-  client: any;
+  client: TaskManagerClient | Context7Client;
   status: 'disconnected' | 'connecting' | 'connected' | 'error';
   lastConnected?: Date;
   lastHealthCheck?: Date;
@@ -115,12 +115,15 @@ export class EnhancedMCPManager extends EventEmitter implements MCPManager {
         await this.initializeServer(name, state);
         results.servers[name] = { success: true };
         console.log(`✅ ${name} initialized successfully`);
-      } catch (error: any) {
+      } catch (error) {
         results.servers[name] = {
           success: false,
-          error: error.message,
+          error: error instanceof Error ? error.message : String(error),
         };
-        console.error(`❌ ${name} initialization failed:`, error.message);
+        console.error(
+          `❌ ${name} initialization failed:`,
+          error instanceof Error ? error.message : String(error)
+        );
 
         if (state.config.required) {
           results.success = false;
@@ -161,7 +164,7 @@ export class EnhancedMCPManager extends EventEmitter implements MCPManager {
     }
   }
 
-  private async retryWithPolicy(operation: () => Promise<any>, policy?: RetryPolicy): Promise<any> {
+  private async retryWithPolicy<T>(operation: () => Promise<T>, policy?: RetryPolicy): Promise<T> {
     if (!policy) return operation();
 
     let lastError: Error;
@@ -170,8 +173,8 @@ export class EnhancedMCPManager extends EventEmitter implements MCPManager {
     for (let i = 0; i <= policy.maxRetries; i++) {
       try {
         return await operation();
-      } catch (error: any) {
-        lastError = error;
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error));
 
         if (i < policy.maxRetries) {
           console.log(`Retry ${i + 1}/${policy.maxRetries} after ${delay}ms...`);
@@ -245,7 +248,7 @@ export class EnhancedMCPManager extends EventEmitter implements MCPManager {
               state.status = 'disconnected';
               console.log(`✅ ${name} disconnected`);
             })
-            .catch((err: any) => {
+            .catch((err) => {
               console.error(`Error disconnecting ${name}:`, err);
             })
         );
@@ -296,7 +299,10 @@ export class EnhancedMCPManager extends EventEmitter implements MCPManager {
       };
     };
   } {
-    const servers: any = {};
+    const servers: Record<
+      string,
+      { status: string; lastConnected?: Date; lastHealthCheck?: Date; errorCount: number }
+    > = {};
 
     for (const [name, state] of this.servers) {
       servers[name] = {

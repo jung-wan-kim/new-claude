@@ -5,7 +5,7 @@ export interface ContextEntry {
   content: string;
   tags: string[];
   type: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
 }
@@ -13,13 +13,13 @@ export interface ContextEntry {
 export class Context7Client {
   private connected = false;
 
-  async initialize(): Promise<void> {
+  initialize(): void {
     // 실제 MCP 서버 연결은 나중에 구현
     console.log('Context7 client initialized (mock mode)');
     this.connected = true;
   }
 
-  async search(
+  search(
     _query: string,
     _filters?: {
       tags?: string[];
@@ -27,7 +27,7 @@ export class Context7Client {
       dateFrom?: string;
       dateTo?: string;
     }
-  ): Promise<ContextEntry[]> {
+  ): ContextEntry[] {
     if (!this.connected) {
       throw new Error('Context7 client not initialized');
     }
@@ -41,8 +41,8 @@ export class Context7Client {
     content: string;
     tags?: string[];
     type?: string;
-    metadata?: Record<string, any>;
-  }): Promise<ContextEntry> {
+    metadata?: Record<string, unknown>;
+  }): ContextEntry {
     if (!this.connected) {
       throw new Error('Context7 client not initialized');
     }
@@ -60,7 +60,7 @@ export class Context7Client {
     };
   }
 
-  async get(_id: string): Promise<ContextEntry | null> {
+  get(_id: string): ContextEntry | null {
     if (!this.connected) {
       throw new Error('Context7 client not initialized');
     }
@@ -75,9 +75,9 @@ export class Context7Client {
       title?: string;
       content?: string;
       tags?: string[];
-      metadata?: Record<string, any>;
+      metadata?: Record<string, unknown>;
     }
-  ): Promise<ContextEntry> {
+  ): ContextEntry {
     if (!this.connected) {
       throw new Error('Context7 client not initialized');
     }
@@ -86,7 +86,7 @@ export class Context7Client {
     throw new Error('Not implemented in mock mode');
   }
 
-  async delete(_id: string): Promise<void> {
+  delete(_id: string): void {
     if (!this.connected) {
       throw new Error('Context7 client not initialized');
     }
@@ -94,7 +94,7 @@ export class Context7Client {
     // 모의 구현
   }
 
-  async disconnect(): Promise<void> {
+  disconnect(): void {
     this.connected = false;
   }
 }

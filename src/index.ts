@@ -18,7 +18,7 @@ program
   .description('Start the Claude Code Controller TUI')
   .option('-c, --config <path>', 'Config file path', '.ccc.config.json')
   .option('--no-mcp', 'Start without MCP servers')
-  .action(async (options) => {
+  .action(async (options: { config?: string; mcp?: boolean }) => {
     const app = new ClaudeCodeController({
       configPath: options.config,
       enableMCP: options.mcp,

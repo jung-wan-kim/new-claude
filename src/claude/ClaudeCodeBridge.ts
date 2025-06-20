@@ -31,13 +31,13 @@ export class ClaudeCodeBridge extends EventEmitter {
       let output = '';
       let error = '';
 
-      this.currentProcess.stdout?.on('data', (data) => {
+      this.currentProcess.stdout?.on('data', (data: Buffer) => {
         const chunk = data.toString();
         output += chunk;
         this.emit('data', chunk);
       });
 
-      this.currentProcess.stderr?.on('data', (data) => {
+      this.currentProcess.stderr?.on('data', (data: Buffer) => {
         const chunk = data.toString();
         error += chunk;
         this.emit('error', chunk);
@@ -82,11 +82,11 @@ export class ClaudeCodeBridge extends EventEmitter {
       shell: true,
     });
 
-    this.currentProcess.stdout?.on('data', (data) => {
+    this.currentProcess.stdout?.on('data', (data: Buffer) => {
       onData(data.toString());
     });
 
-    this.currentProcess.stderr?.on('data', (data) => {
+    this.currentProcess.stderr?.on('data', (data: Buffer) => {
       onData(`Error: ${data.toString()}`);
     });
 
@@ -128,7 +128,7 @@ export class ClaudeCodeBridge extends EventEmitter {
     });
   }
 
-  async cancelCurrentCommand(): Promise<void> {
+  cancelCurrentCommand(): void {
     if (this.isRunning()) {
       this.kill();
       this.emit('command:cancelled');

@@ -16,17 +16,17 @@ export interface Request {
 export class TaskManagerClient {
   private connected = false;
 
-  async initialize(): Promise<void> {
+  initialize(): void {
     // 실제 MCP 서버 연결은 나중에 구현
     console.log('TaskManager client initialized (mock mode)');
     this.connected = true;
   }
 
-  async createRequest(_data: {
+  createRequest(_data: {
     originalRequest: string;
     tasks: Array<{ title: string; description: string }>;
     splitDetails?: string;
-  }): Promise<{ requestId: string }> {
+  }): { requestId: string } {
     if (!this.connected) {
       throw new Error('TaskManager client not initialized');
     }
@@ -35,7 +35,7 @@ export class TaskManagerClient {
     return { requestId: `req-${Date.now()}` };
   }
 
-  async getNextTask(_requestId: string): Promise<Task | null> {
+  getNextTask(_requestId: string): Task | null {
     if (!this.connected) {
       throw new Error('TaskManager client not initialized');
     }
@@ -44,7 +44,7 @@ export class TaskManagerClient {
     return null;
   }
 
-  async markTaskDone(_taskId: string, _completedDetails?: string): Promise<void> {
+  markTaskDone(_taskId: string, _completedDetails?: string): void {
     if (!this.connected) {
       throw new Error('TaskManager client not initialized');
     }
@@ -52,7 +52,7 @@ export class TaskManagerClient {
     // 모의 구현
   }
 
-  async listRequests(): Promise<Request[]> {
+  listRequests(): Request[] {
     if (!this.connected) {
       throw new Error('TaskManager client not initialized');
     }
@@ -61,31 +61,35 @@ export class TaskManagerClient {
     return [];
   }
 
-  async disconnect(): Promise<void> {
+  disconnect(): void {
     this.connected = false;
   }
 
   // MCP 도구 이름과 매칭되는 메소드들
-  async request_planning(params: any): Promise<any> {
+  request_planning(params: {
+    originalRequest: string;
+    tasks: Array<{ title: string; description: string }>;
+    splitDetails?: string;
+  }): { requestId: string } {
     return this.createRequest(params);
   }
 
-  async get_next_task(params: { requestId: string }): Promise<any> {
-    const task = await this.getNextTask(params.requestId);
+  get_next_task(params: { requestId: string }): { status: string; task?: Task } {
+    const task = this.getNextTask(params.requestId);
     return task ? { status: 'next_task', task } : { status: 'all_tasks_done' };
   }
 
-  async mark_task_done(params: any): Promise<any> {
-    await this.markTaskDone(params.taskId, params.completedDetails);
+  mark_task_done(params: { taskId: string; completedDetails?: string }): { status: string } {
+    this.markTaskDone(params.taskId, params.completedDetails);
     return { status: 'task_marked_done' };
   }
 
-  async approve_task_completion(_params: any): Promise<any> {
+  approve_task_completion(_params: { requestId: string; taskId: string }): { status: string } {
     // 모의 구현
     return { status: 'task_approved' };
   }
 
-  async list_requests(): Promise<any> {
+  list_requests(): Request[] {
     return this.listRequests();
   }
 }

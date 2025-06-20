@@ -124,7 +124,7 @@ export class ClaudeCodeController {
 
     // 종료 키 설정
     this.screen.key(['q', 'C-c'], () => {
-      this.shutdown();
+      void this.shutdown();
     });
 
     // 에러 핸들러

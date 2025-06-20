@@ -25,7 +25,7 @@ async function testMCPConnection() {
     // TaskManager 테스트
     console.log('\n3. Testing TaskManager...');
     try {
-      const { requestId } = await mcpManager.taskManager.createRequest({
+      const { requestId } = mcpManager.taskManager.createRequest({
         originalRequest: 'Test task creation',
         tasks: [
           {
@@ -41,7 +41,7 @@ async function testMCPConnection() {
       console.log('   ✓ Created request with ID:', requestId);
 
       // 요청 목록 확인
-      const requests = await mcpManager.taskManager.listRequests();
+      const requests = mcpManager.taskManager.listRequests();
       console.log('   ✓ Total requests:', requests.length);
     } catch (error) {
       console.log('   ✗ TaskManager test failed:', error);
@@ -51,7 +51,7 @@ async function testMCPConnection() {
     console.log('\n4. Testing Context7...');
     try {
       // 컨텍스트 생성
-      const context = await mcpManager.context7.create({
+      const context = mcpManager.context7.create({
         title: 'Test Context',
         content: 'This is a test context entry',
         type: 'test',
@@ -60,11 +60,11 @@ async function testMCPConnection() {
       console.log('   ✓ Created context with ID:', context.id);
 
       // 검색 테스트
-      const searchResults = await mcpManager.context7.search('test');
+      const searchResults = mcpManager.context7.search('test');
       console.log('   ✓ Search results:', searchResults.length);
 
       // 삭제
-      await mcpManager.context7.delete(context.id);
+      mcpManager.context7.delete(context.id);
       console.log('   ✓ Deleted test context');
     } catch (error) {
       console.log('   ✗ Context7 test failed:', error);
